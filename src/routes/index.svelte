@@ -1,7 +1,17 @@
+<script lang="ts">
+    import {getContext} from 'svelte'
+    import {toStore} from '$lib/tournament'
+
+    const tournament = getContext<Tournament>('tournament')
+    const tournamentStore = toStore(tournament)
+    
+
+</script>
+
 <h1>Tournament</h1>
 <div class="buttons">
-    <button class="btn">New</button>
-    <button class="btn">Load</button>
+    <a class="btn" href="/contestants">Neu</a>
+    <button class="btn">Laden</button>
 </div>
 
 
@@ -9,11 +19,11 @@
     h1 {
         font-size: 5rem;
     }
-    button {
+    .btn {
         font-size: 3rem;
         width: 100%;
     }
-    button + button {
+    .btn + .btn {
         margin-top: 1rem;
     }
 </style>

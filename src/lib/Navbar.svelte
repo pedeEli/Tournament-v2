@@ -1,9 +1,9 @@
 <nav>
     <ul>
         <li class="name">Bier Pong Tournier</li>
-        <li class="underline"><a href="#">Teams</a></li>
-        <li class="underline"><a href="#">Gruppen</a></li>
-        <li class="underline"><a href="#">Tournier</a></li>
+        <li class="underline"><a href="/contestants">Teams</a></li>
+        <li class="underline"><a href="/groups">Gruppen</a></li>
+        <li class="underline"><a href="/tournament">Tournier</a></li>
     </ul>
 </nav>
 

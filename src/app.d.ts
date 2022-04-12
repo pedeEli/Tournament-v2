@@ -1,4 +1,4 @@
-/// <reference types="svelte"/>
+/// <reference types="@sveltejs/kit"/>
 
 
 declare interface Tournament {
@@ -11,7 +11,7 @@ declare interface Tournament {
 
 declare interface Settings {
     name: string,
-    state: 'mainMenu' | 'editingContestants' | 'editingGroups' | 'running',
+    state: string,
     haveGroups: boolean,
     luckyLoser: boolean,
     winnerPerGroup: number
