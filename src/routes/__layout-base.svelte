@@ -1,4 +1,5 @@
 <script lang="ts">
+    import '../font.css'
     import '../app.css'
     import {setContext} from 'svelte'
     import {page} from '$app/stores'

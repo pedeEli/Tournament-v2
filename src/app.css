@@ -7,7 +7,7 @@
     --border: .15rem solid hsl(var(--light-gray-clr));
 	--border-radius: .4em;
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 html, body {
