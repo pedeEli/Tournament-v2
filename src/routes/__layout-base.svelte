@@ -1,7 +1,7 @@
 <script lang="ts">
     import '../font.css'
     import '../app.css'
-    import {setContext} from 'svelte'
+    import {setContext, onMount} from 'svelte'
     import {page} from '$app/stores'
     import {goto} from '$app/navigation'
     import {loadTournament, toStore} from '$lib/tournament'
@@ -18,8 +18,13 @@
   
     let popup: Popup
     setContext('popup', () => popup)
+
+    let render = false
+    onMount(() => render = true)
 </script>
   
 <PopupElement bind:popup/>
-  
-<slot/>
+
+{#if render}
+    <slot/>
+{/if}

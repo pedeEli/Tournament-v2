@@ -4,7 +4,7 @@
     import Add from '$lib/svg/Add.svelte'
     import {createId, capitalizeWords} from '$lib/tournament'
 
-    const popup = getContext<Popup>('popup')
+    const popup = getContext<() => Popup>('popup')()
 
     const tournament = getContext<Tournament>('tournament')
     const contestants = tournament.contestants
@@ -24,11 +24,11 @@
         const contestant = createContestant(id)
 
         if (contestant.name === '')
-            return popup('Name cannot be empty')
+            return popup('Name benötigt')
         if (Object.values(contestants).find(({name}) => name === contestant.name))
-            return popup(`${contestant.name} already exists`)
+            return popup(`${contestant.name} existiert bereits`)
         if (contestant.type === 'team' && contestant.members.length < 2)
-            return popup('There must be at least 2 members in a group')
+            return popup('Es müssen mindestens zwei Teammitglieder sein')
 
         contestants[id] = contestant
 

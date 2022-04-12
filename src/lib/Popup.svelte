@@ -26,7 +26,7 @@
 {#if show}
     <div transition:fly={{y: 50, duration: 200}} class="card">
         {text}
-        <button on:click={close} class="svg"><Minus/></button>
+        <button on:click={close} class="btn svg"><Minus/></button>
     </div>
 {/if}
 
@@ -35,8 +35,8 @@
         position: fixed;
         bottom: 2rem;
         font-size: 1.5rem;
-        left: auto;
-        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
         background-color: hsl(var(--clr-bg));
         display: flex;
         align-items: center;

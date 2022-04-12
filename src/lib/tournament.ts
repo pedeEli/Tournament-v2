@@ -45,7 +45,7 @@ export const createId = (ids: string[]) => {
     const id = v4()
     if (ids.find(i => i === id))
         return createId(ids)
-    return ids
+    return id
 }
 
 export const capitalizeWords = (str: string) => {
