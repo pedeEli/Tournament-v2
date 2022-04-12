@@ -6,7 +6,7 @@
     const tournament = getContext<Tournament>('tournament')
     let editing = false
     afterNavigate(({from}) => {
-        editing = from.pathname === '/'
+        editing = from?.pathname === '/'
     })
 </script>
 

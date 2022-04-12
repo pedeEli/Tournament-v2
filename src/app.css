@@ -76,6 +76,21 @@ input {
 	background-color: hsl(var(--light-gray-clr));
 }
 
+.card {
+	border: var(--border);
+	border-radius: var(--border-radius);
+	padding: .7em min(2em, 2rem);
+}
+
+.svg {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1em;
+	height: 1em;
+}
+
+
 #svelte {
     display: contents;
 }

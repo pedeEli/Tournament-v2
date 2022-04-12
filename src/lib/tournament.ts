@@ -47,3 +47,7 @@ export const createId = (ids: string[]) => {
         return createId(ids)
     return ids
 }
+
+export const capitalizeWords = (str: string) => {
+    return str.toLowerCase().split(' ').map(word => word[0].toUpperCase() + word.substring(1)).join(' ')
+}

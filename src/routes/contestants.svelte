@@ -1,1 +1,5 @@
-<h1>contestants</h1>
+<script lang="ts">
+    import New from '$lib/contestants/New.svelte'
+</script>
+
+<New/>
