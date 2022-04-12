@@ -77,3 +77,11 @@ declare interface Finale {
 }
 
 declare type Writable<T> = import('svelte/store').Writable<T>
+
+
+declare namespace svelte.JSX {
+    interface HTMLProps<T> {
+        onclickoutside?: (event: CustomEvent) => void,
+        ondoubleclick?: (event: CustomEvent) => void
+    }
+}
