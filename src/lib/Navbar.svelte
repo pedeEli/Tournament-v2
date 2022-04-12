@@ -13,7 +13,7 @@
         align-items: center;
         height: var(--nav-height);
         font-size: calc(var(--nav-height) * 0.3);
-        background-color: var(--nav-bg-clr);
+        background-color: hsl(var(--primary-clr));
     }
     ul {
         display: contents;

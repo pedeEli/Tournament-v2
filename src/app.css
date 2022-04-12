@@ -1,6 +1,11 @@
 :root {
     --nav-height: 5rem;
-    --nav-bg-clr: hsl(204, 100%, 33%);
+    --primary-clr: 204, 100%, 33%;
+    --gray-clr: 0, 0%, 25%;
+    --light-gray-clr: 0, 0%, 45%;
+
+    --border: .15rem solid hsl(var(--light-gray-clr));
+	--border-radius: .4em;
 
     font-family: Arial, Helvetica, sans-serif;
 }
@@ -11,6 +16,7 @@ html, body {
 body {
     margin: 0;
     color: white;
+    background-color: hsl(var(--gray-clr));
 }
 
 a {
@@ -46,4 +52,23 @@ a {
 
 .underline:hover::before, .underline:focus::before {
     transform: scaleX(1);
+}
+
+
+.btn {
+	all: unset;
+    display: block;
+    text-align: center;
+	padding: .3em;
+	border: var(--border);
+	border-radius: 5px;
+	cursor: pointer;
+	user-select: none;
+}
+.btn:active, .btn.active {
+	background-color: hsl(var(--light-gray-clr));
+}
+
+#svelte {
+    display: contents;
 }
