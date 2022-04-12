@@ -33,6 +33,7 @@ function createMainWindow() {
     }
   });
 
+  mainwindow.setMenuBarVisibility(false)
   mainwindow.once("close", () => { mainwindow = null; });
 
   if(!isdev) mainwindow.removeMenu();
