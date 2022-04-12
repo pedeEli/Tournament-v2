@@ -37,7 +37,7 @@
         font-size: 1.5rem;
         left: 50%;
         transform: translateX(-50%);
-        background-color: hsl(var(--clr-bg));
+        background-color: hsl(var(--gray-clr));
         display: flex;
         align-items: center;
     }

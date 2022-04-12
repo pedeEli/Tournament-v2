@@ -4,9 +4,12 @@
     import EditableText from '$lib/editable/EditableText.svelte'
     import Minus from '$lib/svg/Minus.svelte'
     import {toStore, capitalizeWords} from '$lib/tournament'
-    import {getContext} from 'svelte';
+    import {getContext, createEventDispatcher} from 'svelte';
 
     export let heading = 'Liste'
+    export let loadHeading: () => string = () => ''
+    export let saveHeading: (value: string) => void = () => {}
+    export let deleteButton = false
 
     export let list: string[]
     const listStore = toStore(list)
@@ -53,13 +56,27 @@
         }
     }
 
+    const dispatch = createEventDispatcher()
+    const handleDelete = () => {
+        dispatch('delete')
+    }
+
     const popup = getContext<() => Popup>('popup')()
 </script>
 
 <section class="list card">
     <header>
-        <h3>{heading}</h3>
+        <h3>
+            {#if loadHeading() !== ''}
+                <EditableText load={loadHeading} save={saveHeading} width="15ch"/>
+            {:else}
+                {heading}
+            {/if}
+        </h3>
         <button class="btn svg" on:click={startAdding}><Add/></button>
+        {#if deleteButton}
+            <button class="delete btn svg" on:click={handleDelete}><Minus/></button>
+        {/if}
     </header>
     {#if isAdding}
         <input use:clickOutside on:clickoutside={cancelAdding} bind:this={inputElement} type="text" on:keydown={handleKeyDown} bind:value={itemToAdd}>
@@ -115,5 +132,8 @@
         height: .2em;
         background-color: hsl(var(--light-gray-clr));
         border-radius: 1000000vw;
+    }
+    .delete {
+        margin-left: .5rem;
     }
 </style>

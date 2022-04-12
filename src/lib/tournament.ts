@@ -51,3 +51,22 @@ export const createId = (ids: string[]) => {
 export const capitalizeWords = (str: string) => {
     return str.toLowerCase().split(' ').map(word => word[0].toUpperCase() + word.substring(1)).join(' ')
 }
+
+type GroupedContestants = {
+    persons: Person[],
+    teams: Team[]
+}
+export const groupByType = (contestants: Contestants): GroupedContestants => {
+    const groups: GroupedContestants = {
+        persons: [],
+        teams: []
+    }
+    for (const contestant of Object.values(contestants)) {
+        if (contestant.type === 'person') {
+            groups.persons.push(contestant)
+        }
+        if (contestant.type === 'team')
+            groups.teams.push(contestant)
+    }
+    return groups
+}

@@ -80,6 +80,14 @@ declare type Writable<T> = import('svelte/store').Writable<T>
 
 declare type Popup = (msg: string, duration?: number) => void
 
+
+declare interface ContestantsContext {
+    removeContestant: (id: string) => () => void,
+    renameContestant: (id: string) => (name: string) => void,
+    getContestantName: (id: string) => () => string
+}
+
+
 declare namespace svelte.JSX {
     interface HTMLProps<T> {
         onclickoutside?: (event: CustomEvent) => void,
