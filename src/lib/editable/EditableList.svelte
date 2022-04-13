@@ -10,13 +10,17 @@
     export let loadHeading: () => string = () => ''
     export let saveHeading: (value: string) => void = () => {}
     export let deleteButton = false
+    export let addButton = true
 
     export let list: string[]
+    export let mapper: ((item: string) => string) | false = false
     const listStore = toStore(list)
 
     let isAdding = false
     let itemToAdd = ''
     let inputElement: HTMLInputElement
+    
+    const dispatch = createEventDispatcher()
 
     const startAdding = () => {
         isAdding = true
@@ -42,7 +46,9 @@
     }
 
     const removeItem = (index: number) => {
-        return () => list.splice(index, 1)
+        return () => {
+            list.splice(index, 1)
+        }
     }
 
     const renameItem = (index: number) => {
@@ -56,7 +62,6 @@
         }
     }
 
-    const dispatch = createEventDispatcher()
     const handleDelete = () => {
         dispatch('delete')
     }
@@ -64,7 +69,7 @@
     const popup = getContext<() => Popup>('popup')()
 </script>
 
-<section class="list card">
+<section class="list card" on:mouseup>
     <header>
         <h3>
             {#if loadHeading() !== ''}
@@ -73,7 +78,9 @@
                 {heading}
             {/if}
         </h3>
-        <button class="btn svg" on:click={startAdding}><Add/></button>
+        {#if addButton}
+            <button class="btn svg" on:click={startAdding}><Add/></button>
+        {/if}
         {#if deleteButton}
             <button class="delete btn svg" on:click={handleDelete}><Minus/></button>
         {/if}
@@ -84,7 +91,11 @@
     {#each $listStore as item, index (item)}
         <div class="item">
             <button class="btn svg remove" on:click={removeItem(index)}><Minus/></button>
-            <EditableText load={() => list[index]} save={renameItem(index)} width="15ch"/>
+            {#if !mapper}
+                <EditableText load={() => list[index]} save={renameItem(index)} width="15ch"/>
+            {:else}
+                {mapper(list[index])}
+            {/if}
         </div>
     {/each}
 </section>

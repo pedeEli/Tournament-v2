@@ -77,6 +77,7 @@ declare interface Finale {
 }
 
 declare type Writable<T> = import('svelte/store').Writable<T>
+declare type Readable<T> = import('svelte/store').Readable<T>
 
 declare type Popup = (msg: string, duration?: number) => void
 
