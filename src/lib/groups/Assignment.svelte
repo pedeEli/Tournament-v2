@@ -66,16 +66,15 @@
         </header>
         <div class="groups-wrapper">
             {#each Object.values($groupsStore) as {id, name} (id)}
-                <div class="group" data-group="{id}" on:mouseup={handleDrop(id)}>
-                    <EditableList
-                        on:delete={removeGroup(id)}
-                        heading={name}
-                        list={groups[id].members}
-                        mapper={(mid) => contestants[mid].name}
-                        addButton={false}
-                        deleteButton
-                    />
-                </div>
+                <EditableList
+                    on:mouseup={handleDrop(id)}
+                    on:delete={removeGroup(id)}
+                    heading={name}
+                    list={groups[id].members}
+                    mapper={(mid) => contestants[mid].name}
+                    addButton={false}
+                    deleteButton
+                />
             {/each}
         </div>
     </div>
@@ -117,9 +116,6 @@
     .groups {
         min-width: 20ch;
     }
-    /* .group + .group {
-        margin-top: .8rem;
-    } */
     .contestant {
         display: flex;
         align-items: center;

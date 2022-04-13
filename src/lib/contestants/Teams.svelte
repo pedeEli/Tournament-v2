@@ -12,7 +12,7 @@
         return team.members
     }
 </script>
-{#if teams}
+{#if teams.length}
     <section class="teams">
         <h2>Teams</h2>
         <div class="teams-wrapper">
