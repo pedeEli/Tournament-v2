@@ -4,21 +4,28 @@
 
 <div class="wrapper">
   <Navbar/>
-  <main>
-    <slot/>
-  </main>
+  <div class="main-wrapper">
+    <main>
+      <slot/>
+    </main>
+  </div>
 </div>
 
 <style>
   .wrapper {
-    display: flex;
-    flex-direction: column;
     height: 100%;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: var(--nav-height) 1fr;
   }
   main {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin: 1rem;
+  }
+  .main-wrapper {
+    height: 100%;
+    overflow: auto;
   }
 </style>
