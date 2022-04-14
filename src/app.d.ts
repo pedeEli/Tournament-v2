@@ -46,9 +46,10 @@ declare interface Matches {
     [id: string]: Match
 }
 
+type MatchState = 'waiting' | 'pinned' | 'running' | 'paused' | 'leftWon' | 'rightWon' | 'draw'
 declare interface Match {
     id: string,
-    state: 'waiting' | 'running' | 'paused' | 'leftWon' | 'rightWon',
+    state: MatchState,
     left: string,
     right: string
     leftScore: number,

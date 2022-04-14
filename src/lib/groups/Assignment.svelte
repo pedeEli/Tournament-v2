@@ -2,12 +2,18 @@
     import Add from '$lib/svg/Add.svelte'
     import EditableList from '$lib/editable/EditableList.svelte'
     import {createId} from '$lib/tournament'
-    import {getAssignedContestants} from '$lib/tournament'
+    import {
+        getAssignedContestants,
+        createAndAssignMatches,
+        removeMatches,
+        removeMatchesOfContestant
+    } from '$lib/groups'
 
     export let contestants: Contestants
     export let contestantsList: Contestant[]
     export let groups: Groups
     export let groupsStore: Readable<Groups>
+    export let matches: Matches
 
     $: assignedContestants = getAssignedContestants(Object.values($groupsStore))
 
@@ -22,11 +28,17 @@
         }
     }
     const removeGroup = (id: string) => () => {
+        removeMatches(groups[id], matches)
         delete groups[id]
         renameAllGroups()
     }
     const renameAllGroups = () => {
         Object.values(groups).forEach((group, index) => group.name = `Group ${index + 1}`)
+    }
+    const removeContestant = (id: string) => (event: CustomEvent<{item: string}>) => {
+        const group = groups[id]
+        const contestant = event.detail.item
+        removeMatchesOfContestant(contestant, group, matches)
     }
 
     let grabbedContestant: string | false = false
@@ -47,6 +59,7 @@
         if (!grabbedContestant) return
         groups[id].members.push(grabbedContestant)
         grabbedContestant = false
+        createAndAssignMatches(groups[id], matches)
     }
 </script>
 
@@ -67,6 +80,7 @@
         <div class="groups-wrapper">
             {#each Object.values($groupsStore) as {id, name} (id)}
                 <EditableList
+                    on:removeitem={removeContestant(id)}
                     on:mouseup={handleDrop(id)}
                     on:delete={removeGroup(id)}
                     heading={name}

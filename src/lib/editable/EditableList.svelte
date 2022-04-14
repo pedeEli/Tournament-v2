@@ -45,15 +45,16 @@
         isAdding = false
     }
 
-    const removeItem = (index: number) => {
+    const removeItem = (index: number, item: string) => {
         return () => {
+            dispatch('removeitem', {index, item})
             list.splice(index, 1)
         }
     }
 
-    const renameItem = (index: number) => {
+    const renameItem = (index: number, item: string) => {
         return (value: string) => {
-            if (!value) return removeItem(index)
+            if (!value) return removeItem(index, item)
             value = capitalizeWords(value)
             if (value === $listStore[index]) return
             if ($listStore.find(item => item === value))
@@ -90,9 +91,9 @@
     {/if}
     {#each $listStore as item, index (item)}
         <div class="item">
-            <button class="btn svg remove" on:click={removeItem(index)}><Minus/></button>
+            <button class="btn svg remove" on:click={removeItem(index, item)}><Minus/></button>
             {#if !mapper}
-                <EditableText load={() => list[index]} save={renameItem(index)} width="15ch"/>
+                <EditableText load={() => list[index]} save={renameItem(index, item)} width="15ch"/>
             {:else}
                 {mapper(list[index])}
             {/if}

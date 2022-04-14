@@ -70,9 +70,3 @@ export const groupByType = (contestants: Contestants): GroupedContestants => {
     }
     return groups
 }
-
-
-
-
-
-export const getAssignedContestants = (groups: Group[]) => groups.map(group => group.members).flat(1)

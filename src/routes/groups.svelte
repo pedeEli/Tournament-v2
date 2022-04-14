@@ -4,9 +4,10 @@
     import Settings from '$lib/groups/Settings.svelte'
     import Assignment from '$lib/groups/Assignment.svelte'
     import {toStore} from '$lib/tournament'
+    import {reassignMatchesAfterRandomize} from '$lib/groups'
 
     const tournament = getContext<Tournament>('tournament')
-    const {settings, groups, contestants} = tournament
+    const {settings, groups, contestants, matches} = tournament
     const contestantsList = Object.values(contestants)
     const settingsStore = toStore(settings)
     const groupsStore = toStore(groups)
@@ -27,6 +28,7 @@
             unassigned.splice(randomIndex, 1)
             index = (index + 1) % groupsIds.length
         }
+        reassignMatchesAfterRandomize(Object.values(groups), matches)
     }
 </script>
 
@@ -37,7 +39,7 @@
 {#if $settingsStore.haveGroups}
     <div class="contestant-count">Es gibt insgesamt {contestantsList.length} Teilnehmer</div>
     <Settings on:assignrandom={assignRandom} {settings} {settingsStore} {groupsStore}/>
-    <Assignment {contestantsList} {groups} {groupsStore} {contestants}/>
+    <Assignment {contestants} {contestantsList} {groups} {groupsStore} {matches}/>
 {/if}
 
 <style>
