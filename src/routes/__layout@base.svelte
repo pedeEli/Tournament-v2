@@ -16,15 +16,18 @@
     height: 100%;
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: var(--nav-height) 1fr;
+    grid-template-rows: var(--nav-height) calc(100vh - var(--nav-height));
   }
   main {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     margin: 1rem;
   }
   .main-wrapper {
+    display: flex;
+    flex-direction: column;
     height: 100%;
     overflow: auto;
   }
