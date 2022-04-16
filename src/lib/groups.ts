@@ -34,7 +34,8 @@ const createNewMatch = (id: string, left: string, right: string): Match => {
         id, left, right,
         state: 'waiting',
         leftScore: 0,
-        rightScore: 0
+        rightScore: 0,
+        time: 0,
     }
 }
 
@@ -69,7 +70,7 @@ export const reassignMatchesAfterRandomize = (groups: Group[], matches: Matches)
 export const getMatchesOf = (group: Group, matches: Matches, id: string) => {
     return group.matches
         .map(mid => matches[mid])
-        .filter(({left, right, state}) => state === 'finished' && (left === id || right === id))
+        .filter(({left, right, state}) => state === 'closed' && (left === id || right === id))
 }
 export const calcInfo = (matches: Match[], id: string) => {
     return matches.reduce<GroupMemberInfo>((acc, cur) => {

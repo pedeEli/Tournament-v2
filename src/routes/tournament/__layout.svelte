@@ -1,5 +1,7 @@
 <script lang="ts">
     import {page} from '$app/stores'
+    import Matches from '$lib/tournament/Matches.svelte'
+
     const routes = [
         {href: '/tournament', name: 'Gruppen'},
         {href: '/tournament/finale', name: 'Finale'},
@@ -21,8 +23,8 @@
         <div class="card content">
             <slot/>
         </div>
-        <div class="card">
-
+        <div class="card matches">
+            <Matches/>
         </div>
     </div>
 </div>
@@ -57,5 +59,12 @@
         display: grid;
         grid-template-columns: 100%;
         grid-template-rows: 100%;
+    }
+    .matches {
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
     }
 </style>

@@ -1,8 +1,15 @@
 <script lang="ts">
+  import {onDestroy, getContext} from 'svelte'
   import {page} from '$app/stores'
   import Navbar from '$lib/Navbar.svelte'
-  
+  import {manageTimeAndState} from '$lib/matches'
+
   $: useGrid = $page.url.pathname.startsWith('/tournament')
+
+  const {matches} = getContext<Tournament>('tournament')
+
+  const cleanUp = manageTimeAndState(matches)
+  onDestroy(cleanUp)
 </script>
 
 <div class="wrapper">

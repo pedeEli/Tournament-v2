@@ -1,18 +1,20 @@
 <script lang="ts">
+    import {selectedMatch} from '$lib/matches'
+
     export let match: Match
     export let contestants: Contestants
 
     $: leftName = contestants[match.left].name
     $: rightName = contestants[match.right].name
 
-    const setRandom = () => {
-        match.leftScore = Math.floor(Math.random() * 10)
-        match.rightScore = Math.floor(Math.random() * 10)
-        match.state = 'finished'
+    const select = () => {
+        if (match.state === 'waiting')
+            return $selectedMatch = match.id
+        $selectedMatch = ''
     }
 </script>
 
-<section on:click={setRandom}>
+<section on:click={select}>
     <div class="card">{leftName}</div>
     <div class="line-wrapper">
         <div class="line"></div>

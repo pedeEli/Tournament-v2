@@ -14,7 +14,8 @@ declare interface Settings {
     state: string,
     haveGroups: boolean,
     luckyLoser: boolean,
-    winnerPerGroup: number
+    winnerPerGroup: number,
+    defaultTime: number,
     addingContestant: {
         addingType: 'person' | 'team',
         teamName: string,
@@ -46,14 +47,15 @@ declare interface Matches {
     [id: string]: Match
 }
 
-type MatchState = 'waiting' | 'pinned' | 'running' | 'paused' | 'finished'
+type MatchState = 'waiting' | 'pinned' | 'running' | 'paused' | 'finished' | 'closed'
 declare interface Match {
     id: string,
     state: MatchState,
     left: string,
     right: string
     leftScore: number,
-    rightScore: number
+    rightScore: number,
+    time: number
 }
 
 declare interface Groups {
