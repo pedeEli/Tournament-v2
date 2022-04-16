@@ -36,3 +36,9 @@
         <RunningMatch match={matches[id]} {settings} {contestants}/>
     {/each}
 {/if}
+
+<style>
+    h2 {
+        font-style: italic;
+    }
+</style>

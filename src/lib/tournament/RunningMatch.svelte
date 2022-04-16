@@ -71,7 +71,7 @@
 </script>
 
 <section class:timeout={state === 'finished' && time === 0} class="running-match">
-    <div>{leftName}</div>
+    <div class="name">{leftName}</div>
     <div class="timer">
         {#if state === 'waiting'}
             <EditableText load={() => addZeros(hours)} save={saveHours} width="2ch" /> :
@@ -81,7 +81,7 @@
             {addZeros(hours)} : {addZeros(minutes)} : {addZeros(seconds)}
         {/if}
     </div>
-    <div class="right">{rightName}</div>
+    <div class="name right">{rightName}</div>
     {#if state === 'waiting'}
         <button on:click={startMatch} class="btn center">Start</button>
     {:else if state === 'running' || state === 'paused'}
@@ -103,7 +103,7 @@
 <style>
     .running-match {
         display: grid;
-        grid-template-columns: 1fr 10ch 1fr;
+        grid-template-columns: 8ch 8ch 8ch;
         align-items: center;
         font-size: 1.7rem;
         gap: .2rem;
@@ -116,6 +116,11 @@
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+    .name {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
     .right {
         justify-self: right;

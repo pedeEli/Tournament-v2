@@ -49,7 +49,7 @@
     }
     .info {
         display: grid;
-        grid-template-columns: 3fr 1fr;
+        grid-template-columns: 1fr auto;
         grid-template-rows: 100%;
         gap: 1rem;
         height: 100%;
@@ -62,9 +62,8 @@
     }
     .matches {
         overflow-y: auto;
-        overflow-x: hidden;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: .7rem;
     }
 </style>

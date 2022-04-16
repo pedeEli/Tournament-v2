@@ -42,6 +42,8 @@
     onDestroy(() => {
         unsubs.forEach(unsub => unsub())
     })
+
+    //TODO: handle overflowing of long names
 </script>
 
 <section on:click class="card">
