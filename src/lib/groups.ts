@@ -65,3 +65,25 @@ export const reassignMatchesAfterRandomize = (groups: Group[], matches: Matches)
     })
     oldMatches.forEach(id => delete matches[id])
 }
+
+export const getMatchesOf = (group: Group, matches: Matches, id: string) => {
+    return group.matches
+        .map(mid => matches[mid])
+        .filter(({left, right, state}) => state === 'finished' && (left === id || right === id))
+}
+export const calcInfo = (matches: Match[], id: string) => {
+    return matches.reduce<GroupMemberInfo>((acc, cur) => {
+        if (cur.left === id) {
+            if (cur.leftScore > cur.rightScore) {
+                acc.wins++
+                acc.diff += cur.leftScore - cur.rightScore
+            }
+        } else {
+            if (cur.rightScore > cur.leftScore) {
+                acc.wins++
+                acc.diff += cur.rightScore - cur.leftScore
+            }
+        }
+        return acc
+    }, {id, wins: 0, diff: 0})
+}

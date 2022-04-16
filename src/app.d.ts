@@ -46,7 +46,7 @@ declare interface Matches {
     [id: string]: Match
 }
 
-type MatchState = 'waiting' | 'pinned' | 'running' | 'paused' | 'leftWon' | 'rightWon' | 'draw'
+type MatchState = 'waiting' | 'pinned' | 'running' | 'paused' | 'finished'
 declare interface Match {
     id: string,
     state: MatchState,
@@ -87,6 +87,12 @@ declare interface ContestantsContext {
     removeContestant: (id: string) => () => void,
     renameContestant: (id: string) => (name: string) => void,
     getContestantName: (id: string) => () => string
+}
+
+declare interface GroupMemberInfo {
+    id: string,
+    wins: number,
+    diff: number
 }
 
 

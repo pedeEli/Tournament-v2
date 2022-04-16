@@ -17,8 +17,13 @@
             {/each}
         </ul>
     </div>
-    <div class="card matches">
-        <slot/>
+    <div class="info">
+        <div class="card content">
+            <slot/>
+        </div>
+        <div class="card">
+
+        </div>
     </div>
 </div>
 
@@ -26,9 +31,10 @@
     .wrapper {
         width: 100%;
         height: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: 4rem calc(100% - 4rem);
+        align-items: center;
     }
     ul {
         display: contents;
@@ -39,7 +45,17 @@
         font-size: 1.2rem;
         gap: 1rem;
     }
-    .matches {
-        flex: 1;
+    .info {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        grid-template-rows: 100%;
+        gap: 1rem;
+        height: 100%;
+        width: 100%;
+    }
+    .content {
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: 100%;
     }
 </style>

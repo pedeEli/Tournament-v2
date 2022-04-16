@@ -1,34 +1,33 @@
 <script lang="ts">
+  import {page} from '$app/stores'
   import Navbar from '$lib/Navbar.svelte'
+  
+  $: useGrid = $page.url.pathname.startsWith('/tournament')
 </script>
 
 <div class="wrapper">
   <Navbar/>
-  <div class="main-wrapper">
-    <main>
-      <slot/>
-    </main>
-  </div>
+  <main class:use-grid={useGrid}>
+    <slot/>
+  </main>
 </div>
 
 <style>
   .wrapper {
-    height: 100%;
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: var(--nav-height) calc(100vh - var(--nav-height));
   }
   main {
-    flex: 1;
+    overflow: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 1rem;
+    padding: 1rem;
   }
-  .main-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: auto;
+  .use-grid {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 5rem calc(100% - 5rem);
   }
 </style>
