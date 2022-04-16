@@ -71,7 +71,7 @@
 </script>
 
 <section class:timeout={state === 'finished' && time === 0} class="running-match">
-    <div class="name">{leftName}</div>
+    <div class="name" title={leftName}>{leftName}</div>
     <div class="timer">
         {#if state === 'waiting'}
             <EditableText load={() => addZeros(hours)} save={saveHours} width="2ch" /> :
@@ -81,7 +81,7 @@
             {addZeros(hours)} : {addZeros(minutes)} : {addZeros(seconds)}
         {/if}
     </div>
-    <div class="name right">{rightName}</div>
+    <div class="name right" title={rightName}>{rightName}</div>
     {#if state === 'waiting'}
         <button on:click={startMatch} class="btn center">Start</button>
     {:else if state === 'running' || state === 'paused'}
