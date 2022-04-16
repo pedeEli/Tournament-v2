@@ -3,6 +3,7 @@
     import Play from '$lib/svg/Play.svelte'
     import Pause from '$lib/svg/Pause.svelte'
     import {toStore} from '$lib/tournament'
+    import {selectedMatch} from '$lib/matches'
 
     export let match: Match
     export let contestants: Contestants
@@ -15,7 +16,12 @@
     const leftName = contestants[match.left].name
     const rightName = contestants[match.right].name
 
-    $: ({state, time, leftScore, rightScore} = $matchStore)
+    $: ({state, time} = $matchStore)
+    let leftScore = match.leftScore.toString()
+    let rightScore = match.rightScore.toString()
+
+    $: match.leftScore = parseInt(leftScore)
+    $: match.rightScore = parseInt(rightScore)
     
     $: hours = Math.floor(time / 3600)
     $: minutes = Math.floor(time / 60) - hours * 60
@@ -48,6 +54,7 @@
 
     const startMatch = () => {
         match.state = 'running'
+        $selectedMatch = ''
     }
     const pauseMatch = () => {
         match.state = 'paused'
@@ -115,7 +122,7 @@
         text-align: right;
     }
     .timeout {
-        color: var(--warn-clr);
+        color: hsl(var(--red-clr));
     }
     .center {
         grid-column: 2 / 3;
