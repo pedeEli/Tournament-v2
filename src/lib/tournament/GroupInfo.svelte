@@ -42,45 +42,47 @@
     onDestroy(() => {
         unsubs.forEach(unsub => unsub())
     })
-
-    //TODO: handle overflowing of long names
 </script>
 
 <section on:click class="card">
     <div class="name">{group.name}</div>
-    <table>
-        <thead>
-            <tr>
-                <th class="left">Teilnehmer</th>
-                <th class="right">Siege</th>
-                <th class="right">Diff</th>
-            </tr>
-        </thead>
-        <tbody>
-            {#each $infos.sort(sortInfos) as {id, wins, diff}, index (id)}
-                <tr class:winner={index < settings.winnerPerGroup}>
-                    <td class="left">{contestants[id].name}</td>
-                    <td class="right">{wins}</td>
-                    <td class="right">{diff}</td>
-                </tr>
-            {/each}
-        </tbody>
-    </table>
+    <div class="table">
+        <span class="head left">Teilnehmer</span>
+        <span class="head right">Siege</span>
+        <span class="head right">Diff</span>
+        {#each $infos.sort(sortInfos) as {id, wins, diff}, index (id)}
+            {@const {name} = contestants[id]}
+            <div class="row" class:winner={index < settings.winnerPerGroup}>
+                <span class="left overflow" title={name}>{name}</span>
+                <span class="right">{wins}</span>
+                <span class="right">{diff}</span>
+            </div>
+        {/each}
+    </div>
 </section>
 
 <style>
+    section {
+        cursor: pointer;
+    }
+    .overflow {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
     .name {
         margin-bottom: .3rem;
         font-weight: bold;
     }
-    table {
+    .table {
         width: 100%;
-        border-collapse: collapse;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
     }
-    td, th {
+    span {
         padding: .2rem .6rem;
     }
-    th {
+    .head {
         font-weight: normal;
         font-style: italic;
     }
@@ -90,7 +92,10 @@
     .right {
         text-align: right;
     }
-    .winner {
+    .row {
+        display: contents;
+    }
+    .winner > span {
         color: hsl(var(--green-clr));
         background-color: hsl(var(--green-clr) / .1);
     }

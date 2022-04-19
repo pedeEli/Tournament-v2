@@ -32,7 +32,7 @@
 <style>
     .wrapper {
         display: grid;
-        grid-template-columns: 1fr 2fr;
+        grid-template-columns: minmax(auto, 34ch) auto;
         grid-template-rows: 100%;
         gap: 1rem;
     }
