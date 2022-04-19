@@ -18,6 +18,12 @@
         <RunningMatch match={matches[$selectedMatch]} {settings} {contestants}/>
     {/key}
 {/if}
+{#if pinned}
+    <h2>Angepinned</h2>
+    {#each pinned as id (id)}
+        <RunningMatch match={matches[id]} {settings} {contestants}/>
+    {/each}
+{/if}
 {#if running}
     <h2>Running</h2>
     {#each running as id (id)}

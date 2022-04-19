@@ -2,6 +2,8 @@
     import EditableText from '$lib/editable/EditableText.svelte'
     import Play from '$lib/svg/Play.svelte'
     import Pause from '$lib/svg/Pause.svelte'
+    import Pin from '$lib/svg/Pin.svelte'
+    import Close from '$lib/svg/Close.svelte'
     import {toStore} from '$lib/tournament'
     import {selectedMatch} from '$lib/matches'
 
@@ -68,6 +70,13 @@
     const closeMatch = () => {
         match.state = 'closed'
     }
+    const pinMatch = () => {
+        match.state = 'pinned'
+        $selectedMatch = ''
+    }
+    const unpinMatch = () => {
+        match.state = 'waiting'
+    }
 </script>
 
 <section class:timeout={state === 'finished' && time === 0} class="running-match">
@@ -82,8 +91,15 @@
         {/if}
     </div>
     <div class="name right" title={rightName}>{rightName}</div>
-    {#if state === 'waiting'}
-        <button on:click={startMatch} class="btn center">Start</button>
+    {#if state === 'waiting' || state === 'pinned'}
+        <span class="center running">
+            {#if state === 'pinned'}
+                <button on:click={unpinMatch} class="btn svg"><Close/></button>
+            {:else}
+                <button on:click={pinMatch} class="btn svg"><Pin/></button>
+            {/if}
+            <button on:click={startMatch} class="btn center">Start</button>
+        </span>
     {:else if state === 'running' || state === 'paused'}
         <span class="center running">
             {#if state === 'running'}
