@@ -23,9 +23,7 @@
         <div class="card content">
             <slot/>
         </div>
-        <div class="card matches">
-            <Matches/>
-        </div>
+        <Matches/>
     </div>
 </div>
 
@@ -59,11 +57,5 @@
         display: grid;
         grid-template-columns: 100%;
         grid-template-rows: 100%;
-    }
-    .matches {
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: .7rem;
     }
 </style>
