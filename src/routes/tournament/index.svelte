@@ -32,7 +32,7 @@
 <style>
     .wrapper {
         display: grid;
-        grid-template-columns: minmax(auto, 34ch) auto;
+        grid-template-columns: minmax(auto, 34ch) minmax(auto, 80ch);
         grid-template-rows: 100%;
         gap: 1rem;
     }
@@ -45,7 +45,7 @@
     }
     .selected-group {
         display: grid;
-        grid-template-columns: auto 6.5rem auto;
+        grid-template-columns: 1fr 6.5rem 1fr;
         grid-auto-rows: 4rem;
         align-items: center;
         overflow: auto;

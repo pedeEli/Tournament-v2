@@ -1,25 +1,31 @@
 <script lang="ts">
     import {selectedMatch} from '$lib/matches'
+    import {toStore} from '$lib/tournament'
+    import GroupMatchName from '$lib/tournament/GroupMatchName.svelte';
 
     export let match: Match
     export let contestants: Contestants
 
-    $: leftName = contestants[match.left].name
-    $: rightName = contestants[match.right].name
+    const matchStore = toStore(match)
+    const leftName = contestants[match.left].name
+    const rightName = contestants[match.right].name
 
     const select = () => {
         if (match.state === 'waiting')
             return $selectedMatch = match.id
         $selectedMatch = ''
     }
+
+    $: ({state, leftScore, rightScore} = $matchStore)
+    $: diff = leftScore - rightScore
 </script>
 
 <section on:click={select}>
-    <div class="card">{leftName}</div>
+    <GroupMatchName side="left" name={leftName} won={(a, b) => a > b} {matchStore}/>
     <div class="line-wrapper">
         <div class="line"></div>
     </div>
-    <div class="card">{rightName}</div>
+    <GroupMatchName side="right" name={rightName} won={(a, b) => a < b} {matchStore}/>
 </section>
 
 <style>
@@ -27,12 +33,8 @@
         display: contents;
         cursor: pointer;
     }
-    section:hover .card {
-        background-color: hsl(var(--light-gray-clr));
-    }
-    .card {
-        text-align: center;
-        min-width: 20ch;
+    section:hover {
+        --bg-clr: hsl(var(--light-gray-clr));
     }
     .line-wrapper {
         height: 100%;

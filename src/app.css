@@ -5,6 +5,7 @@
     --light-gray-clr: 0 0% 45%;
     --green-clr: 120 50% 50%;
     --red-clr: 0 90% 55%;
+    --yellow-clr: 60 80% 40%;
 
     --border: .15rem solid hsl(var(--light-gray-clr));
 	--border-radius: .4em;
