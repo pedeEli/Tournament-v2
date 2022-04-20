@@ -23,6 +23,7 @@
         groups[id] = {
             id,
             name: `Group ${ids.length + 1}`,
+            state: 'prestart',
             matches: [],
             members: []
         }

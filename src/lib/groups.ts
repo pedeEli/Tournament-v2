@@ -1,4 +1,4 @@
-import {createId} from '$lib/tournament'
+import {createId, toStoreKey} from '$lib/tournament'
 
 export const getAssignedContestants = (groups: Group[]) => groups.map(group => group.members).flat(1)
 
@@ -27,7 +27,7 @@ const createAllMatchPairs = (ids: string[]): [string, string][] => {
     return pairs
 }
 const findMatchWithIds = (matches: Match[], leftId: string, rightId: string): Match | undefined => {
-    return matches.find(({left, right}) => left === leftId && right === rightId )
+    return matches.find(({left, right}) => left === leftId && right === rightId)
 }
 const createNewMatch = (id: string, left: string, right: string): Match => {
     return {
@@ -87,4 +87,34 @@ export const calcInfo = (matches: Match[], id: string) => {
         }
         return acc
     }, {id, wins: 0, diff: 0})
+}
+
+
+export const manageState = (groups: Groups, matches: Matches) => {
+    const unsubs = Object.keys(groups).map(gid => {
+        const group = groups[gid]
+        const matchesStateMap = new Map<string, MatchState>()
+        const matchesState = group.matches.map(mid => {
+            const match = matches[mid]
+            return {stateStore: toStoreKey(match, 'state'), mid}
+        })
+        const unsub = matchesState.map(({stateStore, mid}) => {
+            return stateStore.subscribe(state => {
+                matchesStateMap.set(mid, state)
+
+                const values = [...matchesStateMap.values()]
+                if (values.every(value => value === 'waiting')) {
+                    group.state = 'prestart'
+                    return
+                }
+                if (values.every(value => value === 'closed')) {
+                    group.state = 'finished'
+                    return
+                }
+                group.state = 'running'
+            })
+        })
+        return unsub
+    }).flat(1)
+    return () => unsubs.forEach(unsub => unsub())
 }

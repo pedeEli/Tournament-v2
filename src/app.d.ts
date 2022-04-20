@@ -62,9 +62,11 @@ declare interface Groups {
     [id: string]: Group
 }
 
+declare type GroupState = 'prestart' | 'running' | 'finished'
 declare interface Group {
     id: string,
-    name: string
+    name: string,
+    state: GroupState,
     members: string[],
     matches: string[]
 }

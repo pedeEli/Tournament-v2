@@ -15,9 +15,6 @@
             return $selectedMatch = match.id
         $selectedMatch = ''
     }
-
-    $: ({state, leftScore, rightScore} = $matchStore)
-    $: diff = leftScore - rightScore
 </script>
 
 <section on:click={select}>

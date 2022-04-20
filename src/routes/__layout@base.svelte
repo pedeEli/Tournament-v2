@@ -3,13 +3,18 @@
   import {page} from '$app/stores'
   import Navbar from '$lib/Navbar.svelte'
   import {manageTimeAndState} from '$lib/matches'
+  import {manageState} from '$lib/groups'
 
   $: useGrid = $page.url.pathname.startsWith('/tournament')
 
-  const {matches} = getContext<Tournament>('tournament')
+  const {matches, groups} = getContext<Tournament>('tournament')
 
-  const cleanUp = manageTimeAndState(matches)
-  onDestroy(cleanUp)
+  const cleanUp1 = manageTimeAndState(matches)
+  const cleanUp2 = manageState(groups, matches)
+  onDestroy(() => {
+    cleanUp1()
+    cleanUp2()
+  })
 </script>
 
 <div class="wrapper">

@@ -23,7 +23,7 @@
         <section class="selected-group">
             <h2>{$groupsStore[selectedGroup].name}</h2>
             {#each $groupsStore[selectedGroup].matches as id (id)}
-                <GroupMatch {contestants} match={matches[id]} />
+                <GroupMatch {contestants} match={matches[id]}/>
             {/each}
         </section>
     {/if}
