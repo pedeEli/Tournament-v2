@@ -139,7 +139,6 @@
         overflow: hidden;
     }
     .right {
-        justify-self: right;
         text-align: right;
     }
     .timeout {
