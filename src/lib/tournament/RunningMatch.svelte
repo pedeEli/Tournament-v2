@@ -141,6 +141,9 @@
     .right {
         text-align: right;
     }
+    input.right {
+        justify-self: right;
+    }
     .timeout {
         color: hsl(var(--red-clr));
     }

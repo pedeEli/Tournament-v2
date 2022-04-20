@@ -45,13 +45,13 @@
     }
     .selected-group {
         display: grid;
-        grid-template-columns: 1fr 6.5rem 1fr;
+        grid-template-columns: 1fr 6.5rem 1fr 2rem;
         grid-auto-rows: 4rem;
         align-items: center;
         overflow: auto;
         padding-right: .5rem;
     }
     .selected-group h2 {
-        grid-column: 1 / 4;
+        grid-column: 1 / 5;
     }
 </style>
