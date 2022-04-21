@@ -1,20 +1,33 @@
 <script lang="ts">
-  import {onDestroy, getContext} from 'svelte'
-  import {page} from '$app/stores'
-  import Navbar from '$lib/Navbar.svelte'
-  import {manageTimeAndState} from '$lib/matches'
-  import {manageState} from '$lib/groups'
+    import {onDestroy, getContext} from 'svelte'
+    import {page} from '$app/stores'
+    import Navbar from '$lib/Navbar.svelte'
+    import {manageTimeAndState, managePhaseChange} from '$lib/matches'
+    import {manageState} from '$lib/groups'
+    import {toStoreKey} from '$lib/tournament'
 
-  $: useGrid = $page.url.pathname.startsWith('/tournament')
+    $: useGrid = $page.url.pathname.startsWith('/tournament')
 
-  const {matches, groups} = getContext<Tournament>('tournament')
+    const {matches, groups, state} = getContext<Tournament>('tournament')
 
-  const cleanUp1 = manageTimeAndState(matches)
-  const cleanUp2 = manageState(groups, matches)
-  onDestroy(() => {
-    cleanUp1()
-    cleanUp2()
-  })
+    const cleanUp1 = manageTimeAndState(matches)
+    const cleanUp2 = manageState(groups, matches)
+
+    let cleanUp3: () => void
+    if (state.phase === 'configure') {
+        const unsub1 = managePhaseChange(matches, state)
+        const unsub2 = toStoreKey(state, 'phase').subscribe(phase => phase === 'playing' && cleanUp3())
+        cleanUp3 = () => {
+            unsub1()
+            unsub2()
+        }
+    }
+
+    onDestroy(() => {
+      cleanUp1()
+      cleanUp2()
+      cleanUp3 && cleanUp3()
+    })
 </script>
 
 <div class="wrapper">

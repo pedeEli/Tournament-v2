@@ -3,12 +3,11 @@
     import Persons from '$lib/contestants/Persons.svelte'
     import Teams from '$lib/contestants/Teams.svelte'
     import {getContext, setContext} from 'svelte'
-    import {toStore, groupByType} from '$lib/tournament'
+    import {toStore} from '$lib/tournament'
 
     const popup = getContext<() => Popup>('popup')()
 
-    const tournament = getContext<Tournament>('tournament')
-    const contestants = tournament.contestants
+    const {contestants, state} = getContext<Tournament>('tournament')
     const contestantsStore = toStore(contestants)
 
     
@@ -34,10 +33,10 @@
     $: teams = Object.values($contestantsStore).filter(({type}) => type === 'team').map(({id}) => id)
 </script>
 
-<New/>
+<New {contestants} {state}/>
 <div class="contestants">
-    <Persons bind:persons/>
-    <Teams bind:teams/>
+    <Persons bind:persons {state}/>
+    <Teams bind:teams {contestants} {state}/>
 </div>
 
 <style>

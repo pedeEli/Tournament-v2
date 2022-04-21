@@ -6,10 +6,10 @@
 
     const popup = getContext<() => Popup>('popup')()
 
-    const tournament = getContext<Tournament>('tournament')
-    const contestants = tournament.contestants
+    export let contestants: Contestants
+    export let state: State
 
-    const addingContestant = tournament.settings.addingContestant
+    const addingContestant = state.addingContestant
 
     let {addingType, teamName, personName, members} = addingContestant
     $: addingContestant.addingType = addingType
@@ -17,6 +17,8 @@
     $: addingContestant.personName = personName
 
     const addContestant = () => {
+        if (state.phase === 'playing')
+            return
         teamName = teamName.trim()
         personName = personName.trim()
 
@@ -63,7 +65,7 @@
 <section class="buttons">
     <button class="btn" class:active={addingType === 'team'} on:click={() => addingType = 'team'}>Team</button>
     <button class="btn" class:active={addingType === 'person'} on:click={() => addingType = 'person'}>Person</button>
-    <button class="svg btn" on:click={addContestant}><Add/></button>
+    <button class="svg btn" disabled={state.phase === 'playing'} on:click={addContestant}><Add/></button>
 </section>
 <section class="name">
     {#if addingType === 'team'}
@@ -76,7 +78,7 @@
 </section>
 {#if addingType === 'team'}
     <div class="team-members">
-        <EditableList list={members} heading="Team Mitglieder"/>
+        <EditableList disabled={state.phase === 'playing'} list={members} heading="Team Mitglieder"/>
     </div>
 {/if}
 

@@ -3,9 +3,10 @@
     import EditableList from '$lib/editable/EditableList.svelte'
 
     export let teams: string[]
+    export let contestants: Contestants
+    export let state: State
 
     const {getContestantName, removeContestant, renameContestant} = getContext<ContestantsContext>('functions')
-    const contestants = getContext<Tournament>('tournament').contestants
 
     const loadMembers = (id: string) => {
         const team = contestants[id] as Team
@@ -23,6 +24,7 @@
                     loadHeading={getContestantName(id)}
                     saveHeading={renameContestant(id)}
                     list={loadMembers(id)}
+                    disabled={state.phase === 'playing'}
                 />
             {/each}
         </div>

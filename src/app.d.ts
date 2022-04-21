@@ -3,25 +3,31 @@
 
 declare interface Tournament {
     settings: Settings,
+    state: State,
     contestants: Contestants,
     matches: Matches,
     groups: Groups,
     finales: Finales
 }
 
-declare interface Settings {
-    name: string,
-    state: string,
-    haveGroups: boolean,
-    luckyLoser: boolean,
-    winnerPerGroup: number,
-    defaultTime: number,
+declare type Phase = 'configure' | 'playing'
+declare interface State {
+    page: string,
     addingContestant: {
         addingType: 'person' | 'team',
         teamName: string,
         personName: string,
         members: string[]
     }
+    phase: Phase
+}
+
+declare interface Settings {
+    name: string,
+    haveGroups: boolean,
+    luckyLoser: boolean,
+    winnerPerGroup: number,
+    defaultTime: number
 }
 
 declare interface Contestants {
@@ -62,7 +68,7 @@ declare interface Groups {
     [id: string]: Group
 }
 
-declare type GroupState = 'prestart' | 'running' | 'finished'
+declare type GroupState = 'running' | 'finished'
 declare interface Group {
     id: string,
     name: string,

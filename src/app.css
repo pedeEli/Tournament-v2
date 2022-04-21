@@ -78,6 +78,12 @@ input {
 .btn:active, .btn.active {
 	background-color: hsl(var(--light-gray-clr));
 }
+.btn:disabled {
+    color: hsl(var(--light-gray-clr));
+}
+.btn:disabled:active {
+    background-color: unset;
+}
 
 .card {
 	border: var(--border);

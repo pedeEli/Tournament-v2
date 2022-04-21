@@ -1,4 +1,4 @@
-import {createId, toStoreKey} from '$lib/tournament'
+import {createId, toStoreKey, toSmartStore, toCommonSmartStore, toStore} from '$lib/tournament'
 
 export const getAssignedContestants = (groups: Group[]) => groups.map(group => group.members).flat(1)
 
@@ -91,30 +91,23 @@ export const calcInfo = (matches: Match[], id: string) => {
 
 
 export const manageState = (groups: Groups, matches: Matches) => {
-    const unsubs = Object.keys(groups).map(gid => {
-        const group = groups[gid]
-        const matchesStateMap = new Map<string, MatchState>()
-        const matchesState = group.matches.map(mid => {
+    const groupSubscripter = (group: Group) => {
+        const matchStates = new Map<string, MatchState>()
+        return toSmartStore<string, string, number>(toStoreKey(group, 'matches'), index => group.matches[index], id => id, mid => {
             const match = matches[mid]
-            return {stateStore: toStoreKey(match, 'state'), mid}
-        })
-        const unsub = matchesState.map(({stateStore, mid}) => {
-            return stateStore.subscribe(state => {
-                matchesStateMap.set(mid, state)
+            const unsub = toStoreKey(match, 'state').subscribe(state => {
+                matchStates.set(mid, state)
+                const states = [...matchStates.values()]
 
-                const values = [...matchesStateMap.values()]
-                if (values.every(value => value === 'waiting')) {
-                    group.state = 'prestart'
-                    return
-                }
-                if (values.every(value => value === 'closed')) {
-                    group.state = 'finished'
-                    return
-                }
-                group.state = 'running'
+                if (states.some(state => state !== 'closed'))
+                    return group.state = 'running'
+                return group.state = 'finished'
             })
+            return () => {
+                matchStates.delete(mid)
+                unsub()
+            }
         })
-        return unsub
-    }).flat(1)
-    return () => unsubs.forEach(unsub => unsub())
+    }
+    return toCommonSmartStore(groups, groupSubscripter)
 }

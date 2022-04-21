@@ -2,10 +2,14 @@
     import {createEventDispatcher} from 'svelte'
     import Checkbox from '$lib/Checkbox.svelte'
     export let settings: Settings
+    export let state: State
     export let settingsStore: Readable<Settings>
     export let groupsStore: Readable<Groups>
 
     $: luckyLoserPossible = Math.log2($settingsStore.winnerPerGroup * Object.keys($groupsStore).length) % 1 !== 0
+    
+    let winnerPerGroup = settings.winnerPerGroup.toString()
+    $: settings.winnerPerGroup = parseInt(winnerPerGroup)
 
     const dispatch = createEventDispatcher()
     const assignRandom = () => {
@@ -15,12 +19,16 @@
 
 <section class="inputs">
     <label for="winner-per-group">Gewinner pro Gruppe</label>
-    <input id="winner-per-group" type="text" bind:value={settings.winnerPerGroup}>
+    {#if state.phase === 'playing'}
+        <div>{winnerPerGroup}</div>
+    {:else}
+        <input id="winner-per-group" type="text" bind:value={winnerPerGroup}>
+    {/if}
     {#if luckyLoserPossible}
         <div class="label">Lucky Loser</div>
-        <Checkbox bind:value={settings.luckyLoser}/>
+        <Checkbox disabled={state.phase === 'playing'} bind:value={settings.luckyLoser}/>
     {/if}
-    <button class="btn randomize" on:click={assignRandom}>Zufällig verteilen</button>
+    <button class="btn randomize" disabled={state.phase === 'playing'} on:click={assignRandom}>Zufällig verteilen</button>
 </section>
 
 <style>

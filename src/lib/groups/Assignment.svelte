@@ -8,12 +8,14 @@
         removeMatches,
         removeMatchesOfContestant
     } from '$lib/groups'
+import { managePhaseChange } from '$lib/matches';
 
     export let contestants: Contestants
     export let contestantsList: Contestant[]
     export let groups: Groups
     export let groupsStore: Readable<Groups>
     export let matches: Matches
+    export let state: State
 
     $: assignedContestants = getAssignedContestants(Object.values($groupsStore))
 
@@ -23,7 +25,7 @@
         groups[id] = {
             id,
             name: `Group ${ids.length + 1}`,
-            state: 'prestart',
+            state: 'running',
             matches: [],
             members: []
         }
@@ -47,6 +49,8 @@
     let left: number
 
     const startDrag = (id: string) => ({clientX, clientY}: MouseEvent) => {
+        if (state.phase === 'playing')
+            return
         grabbedContestant = id
         left = clientX
         top = clientY
@@ -70,13 +74,13 @@
     <div class="contestants card">
         <h2>Contestants</h2>
         {#each contestantsList.filter(({id}) => !assignedContestants.find(contestant => contestant === id)) as {id, name} (id)}
-            <div on:mousedown={startDrag(id)} class="contestant card">{name}</div>
+            <div on:mousedown={startDrag(id)} class:disabled={state.phase === 'playing'} class="contestant card">{name}</div>
         {/each}
     </div>
     <div class="groups card">
         <header>
             <h2>Gruppen</h2>
-            <button on:click={addGroup} class="btn svg"><Add/></button>
+            <button disabled={state.phase === 'playing'} on:click={addGroup} class="btn svg"><Add/></button>
         </header>
         <div class="groups-wrapper">
             {#each Object.values($groupsStore) as {id, name} (id)}
@@ -89,6 +93,7 @@
                     mapper={(mid) => contestants[mid].name}
                     addButton={false}
                     deleteButton
+                    disabled={state.phase === 'playing'}
                 />
             {/each}
         </div>
@@ -145,5 +150,10 @@
         align-items: flex-start;
         max-width: 100ch;
         gap: .5rem;
+    }
+
+    .disabled {
+        cursor: default;
+        color: hsl(var(--light-gray-clr));
     }
 </style>

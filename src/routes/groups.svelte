@@ -7,7 +7,7 @@
     import {reassignMatchesAfterRandomize} from '$lib/groups'
 
     const tournament = getContext<Tournament>('tournament')
-    const {settings, groups, contestants, matches} = tournament
+    const {settings, groups, contestants, matches, state} = tournament
     const contestantsList = Object.values(contestants)
     const settingsStore = toStore(settings)
     const groupsStore = toStore(groups)
@@ -34,12 +34,12 @@
 
 <h1>
     Gruppen configurieren
-    <Checkbox bind:value={settings.haveGroups}/>
+    <Checkbox disabled={state.phase === 'playing'} bind:value={settings.haveGroups}/>
 </h1>
 {#if $settingsStore.haveGroups}
     <div class="contestant-count">Es gibt insgesamt {contestantsList.length} Teilnehmer</div>
-    <Settings on:assignrandom={assignRandom} {settings} {settingsStore} {groupsStore}/>
-    <Assignment {contestants} {contestantsList} {groups} {groupsStore} {matches}/>
+    <Settings on:assignrandom={assignRandom} {settings} {settingsStore} {groupsStore} {state}/>
+    <Assignment {contestants} {contestantsList} {groups} {groupsStore} {matches} {state}/>
 {/if}
 
 <style>

@@ -1,16 +1,18 @@
 <script lang="ts">
-    import {onMount} from 'svelte'
     import {clickOutside, doubleClick} from '$lib/actions'
 
     export let save: (value: string) => void
     export let load: () => string
     export let width = 'auto'
     export let editing = false
+    export let disabled = false
 
     let text = load()
 
     let inputElement: HTMLInputElement
     const handleDoubleClick = () => {
+        if (disabled)
+            return
         editing = true
     }
 

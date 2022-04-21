@@ -1,5 +1,5 @@
 import {writable} from 'svelte/store'
-import {toStoreKey} from '$lib/tournament'
+import {toStoreKey, toCommonSmartStore} from '$lib/tournament'
 
 export const selectedMatch = writable('')
 
@@ -16,8 +16,7 @@ export const groupByState = (matches: Matches) => {
 
 export const manageTimeAndState = (matches: Matches) => {
     const intervals = new Map<string, NodeJS.Timeout>()
-    const unsubs = Object.keys(matches).map(mid => {
-        const match = matches[mid]
+    const matchSubscriber = (match: Match) => {
         const state = toStoreKey(match, 'state')
         return state.subscribe(s => {
             if (s === 'running') {
@@ -34,10 +33,17 @@ export const manageTimeAndState = (matches: Matches) => {
                 return clearInterval(interval)
             }
         })
-    })
-
-    return () => {
-        unsubs.forEach(unsub => unsub())
-        intervals.forEach(value => clearInterval(value))
     }
+    const cleanUp = () => intervals.forEach(interval => clearInterval(interval))
+    return toCommonSmartStore(matches, matchSubscriber, cleanUp)
+}
+
+export const managePhaseChange = (matches: Matches, state: State) => {
+    return toCommonSmartStore<Match>(matches, match => {
+        return toStoreKey(match, 'state').subscribe(matchState => {
+            if (matchState === 'waiting')
+                return
+            state.phase = 'playing'
+        })
+    })
 }

@@ -4,15 +4,16 @@
     import EditableText from '$lib/editable/EditableText.svelte'
     
     export let persons: string[]
+    export let state: State
 
     const {removeContestant, renameContestant, getContestantName} = getContext<ContestantsContext>('functions')
 </script>
 {#if persons.length}
     <section class="persons">
-        <h2>Persons</h2>
+        <h2>Personen</h2>
         {#each persons as id (id)}
             <div class="person">
-                <button on:click={removeContestant(id)} class="btn svg small-svg"><Minus/></button>
+                <button disabled={state.phase === 'playing'} on:click={removeContestant(id)} class="btn svg"><Minus/></button>
                 <EditableText load={getContestantName(id)} save={renameContestant(id)} width="13ch"/>
             </div>
         {/each}

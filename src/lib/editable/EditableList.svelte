@@ -11,6 +11,7 @@
     export let saveHeading: (value: string) => void = () => {}
     export let deleteButton = false
     export let addButton = true
+    export let disabled = false
 
     export let list: string[]
     export let mapper: ((item: string) => string) | false = false
@@ -80,10 +81,10 @@
             {/if}
         </h3>
         {#if addButton}
-            <button class="btn svg" on:click={startAdding}><Add/></button>
+            <button {disabled} class="btn svg" on:click={startAdding}><Add/></button>
         {/if}
         {#if deleteButton}
-            <button class="delete btn svg" on:click={handleDelete}><Minus/></button>
+            <button {disabled} class="delete btn svg" on:click={handleDelete}><Minus/></button>
         {/if}
     </header>
     {#if isAdding}
@@ -91,7 +92,7 @@
     {/if}
     {#each $listStore as item, index (item)}
         <div class="item">
-            <button class="btn svg remove" on:click={removeItem(index, item)}><Minus/></button>
+            <button class="btn svg remove" {disabled} on:click={removeItem(index, item)}><Minus/></button>
             {#if !mapper}
                 <EditableText load={() => list[index]} save={renameItem(index, item)} width="15ch"/>
             {:else}

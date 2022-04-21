@@ -8,10 +8,10 @@
     import PopupElement from '$lib/Popup.svelte'
   
     const tournament = loadTournament()
-    goto(tournament.settings.state)
+    goto(tournament.state.page)
     setContext('tournament', tournament)
   
-    $: tournament.settings.state = $page.url.pathname
+    $: tournament.state.page = $page.url.pathname
   
     const tournamentStore = toStore(tournament)
     $: localStorage.setItem('tournament', JSON.stringify($tournamentStore))
