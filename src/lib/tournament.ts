@@ -134,3 +134,8 @@ export const toSmartStore = <OBJ, ID, INDEX extends string | number | symbol>(
         cleanUp && cleanUp()
     }
 }
+
+
+export const mapKey = <T extends object, K extends keyof T>(arr: T[], key: K) => {
+    return arr.map(obj => obj[key])
+}

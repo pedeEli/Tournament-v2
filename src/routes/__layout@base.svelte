@@ -8,10 +8,10 @@
 
     $: useGrid = $page.url.pathname.startsWith('/tournament')
 
-    const {matches, groups, state} = getContext<Tournament>('tournament')
+    const {matches, groups, state, settings} = getContext<Tournament>('tournament')
 
     const cleanUp1 = manageTimeAndState(matches)
-    const cleanUp2 = manageState(groups, matches)
+    const cleanUp2 = manageState(groups, matches, settings)
 
     let cleanUp3: () => void
     if (state.phase === 'configure') {

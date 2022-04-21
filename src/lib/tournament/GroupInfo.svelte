@@ -8,9 +8,10 @@
     export let contestants: Contestants
     export let matches: Matches
     export let id: string
-    export let settings: Settings
 
     const group = groups[id]
+    const groupStore = toStore(group)
+    $: ({state, winners} = $groupStore)
 
     const infos = writable(group.members.map(id => {
         const mmatches = getMatchesOf(group, matches, id)
@@ -39,20 +40,27 @@
         return b.diff - a.diff
     }
 
+    const isWinner = (winners: GroupWinners, mid: string) => {
+        if (Array.isArray(winners))
+            return winners.includes(mid)
+        const {definite, selection} = winners
+        return definite.includes(mid) || selection.includes(mid)
+    }
+
     onDestroy(() => {
         unsubs.forEach(unsub => unsub())
     })
 </script>
 
-<section on:click class="card">
+<section on:click class="card" class:tie={state === 'tie'}>
     <div class="name">{group.name}</div>
     <div class="table">
         <span class="head left">Teilnehmer</span>
         <span class="head right">Siege</span>
         <span class="head right">Diff</span>
-        {#each $infos.sort(sortInfos) as {id, wins, diff}, index (id)}
+        {#each $infos.sort(sortInfos) as {id, wins, diff} (id)}
             {@const {name} = contestants[id]}
-            <div class="row" class:winner={index < settings.winnerPerGroup}>
+            <div class="row" class:winner={isWinner(winners, id)}>
                 <span class="left overflow" title={name}>{name}</span>
                 <span class="right">{wins}</span>
                 <span class="right">{diff}</span>
@@ -98,5 +106,8 @@
     .winner > span {
         color: hsl(var(--green-clr));
         background-color: hsl(var(--green-clr) / .1);
+    }
+    .tie {
+        border-color: hsl(var(--yellow-clr));
     }
 </style>

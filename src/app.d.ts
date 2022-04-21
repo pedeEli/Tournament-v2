@@ -68,13 +68,15 @@ declare interface Groups {
     [id: string]: Group
 }
 
-declare type GroupState = 'running' | 'finished'
+declare type GroupState = 'running' | 'tie' | 'finished'
+declare type GroupWinners = string[] | {definite: string[], options: string[], selection: string[]}
 declare interface Group {
     id: string,
     name: string,
     state: GroupState,
     members: string[],
-    matches: string[]
+    matches: string[],
+    winners: GroupWinners
 }
 
 declare interface Finales {

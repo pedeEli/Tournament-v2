@@ -1,4 +1,4 @@
-import {createId, toStoreKey, toSmartStore, toCommonSmartStore, toStore} from '$lib/tournament'
+import {createId, toStoreKey, toSmartStore, toCommonSmartStore, mapKey} from '$lib/tournament'
 
 export const getAssignedContestants = (groups: Group[]) => groups.map(group => group.members).flat(1)
 
@@ -89,11 +89,52 @@ export const calcInfo = (matches: Match[], id: string) => {
     }, {id, wins: 0, diff: 0})
 }
 
+export const getGroupWinners = (group: Group, matches: Matches, settings: Settings) => {
+    const infos = group.members.map(mid => {
+        const mmatches = getMatchesOf(group, matches, mid)
+        return calcInfo(mmatches, mid)
+    })
+    return getWinners(infos, settings)
+}
+export const getWinners = (infos: GroupMemberInfo[], {winnerPerGroup}: Settings) => {
+    const maxDiff = infos.reduce((max, {diff}) => Math.max(max, diff), 0)
+    const winMultiplier = Math.pow(10, Math.floor(Math.log10(maxDiff)) + 1)
+    const hasher = ({diff, wins}: GroupMemberInfo) => wins * winMultiplier + diff
 
-export const manageState = (groups: Groups, matches: Matches) => {
+    const grouped = infos.reduce<{[hash: number]: GroupMemberInfo[]}>((groups, info) => {
+        const hash = hasher(info)
+        const group = groups[hash] ?? []
+        group.push(info)
+        groups[hash] = group
+        return groups
+    }, {})
+    const hashes = Object.keys(grouped) as any as number[]
+    hashes.sort((a, b) => b - a)
+
+    let index = 0
+    let winners: string[] = []
+    let options: string[] = []
+    while (winners.length < winnerPerGroup) {
+        const hash = hashes[index++]
+        const groups = grouped[hash]
+
+        if (groups.length <= winnerPerGroup - winners.length) {
+            winners.push(...mapKey(groups, 'id'))
+            continue
+        }
+
+        options.push(...mapKey(groups, 'id'))
+        break
+    }
+    return {winners, options}
+}
+
+
+export const manageState = (groups: Groups, matches: Matches, settings: Settings) => {
     const groupSubscripter = (group: Group) => {
         const matchStates = new Map<string, MatchState>()
-        return toSmartStore<string, string, number>(toStoreKey(group, 'matches'), index => group.matches[index], id => id, mid => {
+
+        const matchSubscriber = (mid: string) => {
             const match = matches[mid]
             const unsub = toStoreKey(match, 'state').subscribe(state => {
                 matchStates.set(mid, state)
@@ -101,13 +142,29 @@ export const manageState = (groups: Groups, matches: Matches) => {
 
                 if (states.some(state => state !== 'closed'))
                     return group.state = 'running'
-                return group.state = 'finished'
+
+                if (group.state === 'finished')
+                    return
+                
+                const {winners, options} = getGroupWinners(group, matches, settings)
+                if (options.length === 0) {
+                    group.winners = winners
+                    return group.state = 'finished'
+                }
+                group.winners = {definite: winners, options, selection: []}
+                return group.state = 'tie'
             })
             return () => {
                 matchStates.delete(mid)
                 unsub()
             }
-        })
+        }
+
+        return toSmartStore<string, string, number>(
+            toStoreKey(group, 'matches'),
+            index => group.matches[index],
+            id => id,
+            matchSubscriber)
     }
     return toCommonSmartStore(groups, groupSubscripter)
 }

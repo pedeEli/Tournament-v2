@@ -27,7 +27,8 @@ import { managePhaseChange } from '$lib/matches';
             name: `Group ${ids.length + 1}`,
             state: 'running',
             matches: [],
-            members: []
+            members: [],
+            winners: []
         }
     }
     const removeGroup = (id: string) => () => {
