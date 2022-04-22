@@ -1,4 +1,6 @@
 <script lang="ts">
+    import {navigating} from '$app/stores'
+    import {onMount} from 'svelte'
     import EditableText from '$lib/editable/EditableText.svelte'
     import Play from '$lib/svg/Play.svelte'
     import Pause from '$lib/svg/Pause.svelte'
@@ -10,6 +12,21 @@
     export let match: Match
     export let contestants: Contestants
     export let settings: Settings
+    
+    let hasHighlight = false
+    let section: HTMLElement
+    export const highlight = () => {
+        hasHighlight = true
+        section.scrollIntoView()
+    }
+    $: if (hasHighlight) {
+        section.addEventListener('animationend', () => hasHighlight = false, {once: true})
+    }
+    onMount(() => {
+        if ($navigating?.from)
+            return
+        highlight()
+    })
 
     if (match.time === 0 && match.state === 'waiting') 
         match.time = settings.defaultTime
@@ -79,7 +96,7 @@
     }
 </script>
 
-<section class:timeout={state === 'finished' && time === 0} class="running-match">
+<section bind:this={section} class:hasHighlight class:timeout={state === 'finished' && time === 0} class="running-match">
     <div class="name" title={leftName}>{leftName}</div>
     <div class="timer">
         {#if state === 'waiting'}
@@ -163,5 +180,18 @@
     input {
         width: 3ch;
         font-size: 1.3rem;
+    }
+    .hasHighlight {
+        animation-name: highlight;
+        animation-duration: 1000ms;
+        animation-timing-function: ease-in;
+    }
+    @keyframes highlight {
+        0% {
+            color: hsl(var(--yellow-clr));
+        }
+        100% {
+            color: inherit;
+        }
     }
 </style>

@@ -17,11 +17,7 @@
 
     $: state = $matchStore.state
 
-    const select = () => {
-        if (match.state === 'waiting')
-            return $selectedMatch = match.id
-        $selectedMatch = ''
-    }
+    const select = () => $selectedMatch = match.id
 
     const stateIcons = {
         running: Play,
