@@ -1,14 +1,14 @@
 <script lang="ts">
     import {toStoreKey} from '$lib/tournament';
 
-
     export let group: Group
     export let contestants: Contestants
     export let settings: Settings
 
-    $: winners = group.winners
-    $: originalSelection = Array.isArray(winners) ? [] : winners.selection
-    $: winnersStore = toStoreKey(group, 'winners')
+    
+    let winners = group.winners
+    let winnersStore = toStoreKey(group, 'winners')
+    $: originalSelection = Array.isArray($winnersStore) ? [] : [...$winnersStore.selection]
     $: stateStore = toStoreKey(group, 'state')
     const getInfo = (winners: GroupWinners, selection: string[]) => {
         if (Array.isArray(winners))
@@ -23,7 +23,7 @@
     $: info = getInfo($winnersStore, selection)
 
     const toggle = (id: string) => () => {
-        if (Array.isArray(winners))
+        if (Array.isArray($winnersStore))
             return
         const index = selection.findIndex(id_ => id === id_)
         if (index === -1)
@@ -33,9 +33,9 @@
 
     const submit = () => {
         group.state = 'finished'
-        if (Array.isArray(winners))
-            return
-        winners.selection = selection   
+        if (Array.isArray(group.winners))
+            return  
+        group.winners.selection = selection   
     }
 </script>
 

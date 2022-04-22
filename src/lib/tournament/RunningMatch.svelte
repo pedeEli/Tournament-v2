@@ -39,8 +39,8 @@
     let leftScore = match.leftScore.toString()
     let rightScore = match.rightScore.toString()
 
-    $: match.leftScore = parseInt(leftScore)
-    $: match.rightScore = parseInt(rightScore)
+    $: if (!editing) match.leftScore = parseInt(leftScore)
+    $: if (!editing) match.rightScore = parseInt(rightScore)
     
     $: hours = Math.floor(time / 3600)
     $: minutes = Math.floor(time / 60) - hours * 60
@@ -71,6 +71,10 @@
         return '' + number
     }
 
+    let editing = false
+    let currentLeftScore: number
+    let currentRightScore: number
+
     const startMatch = () => {
         match.state = 'running'
         $selectedMatch = ''
@@ -85,7 +89,11 @@
         match.state = 'finished'
     }
     const closeMatch = () => {
-        match.state = 'closed'
+        if (!editing)
+            return match.state = 'closed'
+        editing = false
+        if (currentLeftScore === match.leftScore && currentRightScore === match.rightScore)
+            return
     }
     const pinMatch = () => {
         match.state = 'pinned'
@@ -93,6 +101,9 @@
     }
     const unpinMatch = () => {
         match.state = 'waiting'
+    }
+    const edit = () => {
+        editing = true
     }
 </script>
 
@@ -126,10 +137,14 @@
             {/if}
             <button on:click={finishMatch} class="btn">Beenden</button>
         </span>
-    {:else if state === 'finished'}
+    {:else if state === 'finished' || editing}
         <input bind:value={leftScore} type="text">
         <button class="btn center" on:click={closeMatch}>Speichern</button>
         <input bind:value={rightScore} class="right" type="text">
+    {:else}
+        <div>{leftScore}</div>
+        <button class="btn center" on:click={edit}>Bearbeiten</button>
+        <div class="right">{rightScore}</div>
     {/if}
 </section>
 

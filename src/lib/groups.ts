@@ -133,10 +133,30 @@ export const getWinners = (infos: GroupMemberInfo[], {winnerPerGroup}: Settings)
 export const manageState = (groups: Groups, matches: Matches, settings: Settings) => {
     const groupSubscripter = (group: Group) => {
         const matchStates = new Map<string, MatchState>()
+        group.matches.forEach(mid => matchStates.set(mid, matches[mid].state))
+
+        const setWinner = () => {
+            const {winners, options} = getGroupWinners(group, matches, settings)
+            if (options.length === 0) {
+                group.winners = winners
+                return group.state === 'finished'
+            }
+            group.winners = {definite: winners, options, selection: []}
+            group.state = 'tie'
+        }
+        
+        const scoreSubscriber = (scores: {left: number, right: number}, side: 'left' | 'right') => (score: number) => {
+            if (group.state === 'running' || scores[side] === score)
+                return
+            scores[side] = score
+            setWinner()
+        }
 
         const matchSubscriber = (mid: string) => {
             const match = matches[mid]
-            const unsub = toStoreKey(match, 'state').subscribe(state => {
+            const scores = {left: match.leftScore, right: match.rightScore}
+
+            const unsub1 = toStoreKey(match, 'state').subscribe(state => {
                 matchStates.set(mid, state)
                 const states = [...matchStates.values()]
 
@@ -145,18 +165,16 @@ export const manageState = (groups: Groups, matches: Matches, settings: Settings
 
                 if (group.state === 'finished')
                     return
-                
-                const {winners, options} = getGroupWinners(group, matches, settings)
-                if (options.length === 0) {
-                    group.winners = winners
-                    return group.state = 'finished'
-                }
-                group.winners = {definite: winners, options, selection: []}
-                return group.state = 'tie'
+
+                setWinner()
             })
+            const unsub2 = toStoreKey(match, 'leftScore').subscribe(scoreSubscriber(scores, 'left'))
+            const unsub3 = toStoreKey(match, 'rightScore').subscribe(scoreSubscriber(scores, 'right'))
             return () => {
                 matchStates.delete(mid)
-                unsub()
+                unsub1()
+                unsub2()
+                unsub3()
             }
         }
 

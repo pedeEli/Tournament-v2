@@ -14,7 +14,7 @@
     $: tournament.state.page = $page.url.pathname
   
     const tournamentStore = toStore(tournament)
-    $: localStorage.setItem('tournament', JSON.stringify($tournamentStore))
+    $: localStorage.setItem('tournament', JSON.stringify($tournamentStore, null, 4))
   
     let popup: Popup
     setContext('popup', () => popup)

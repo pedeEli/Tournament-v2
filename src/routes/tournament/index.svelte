@@ -23,7 +23,9 @@
     {#if selectedGroup}
         <section class="selected-group">
             <h2>{$groupsStore[selectedGroup].name}</h2>
+            {#key selectedGroup}
             <Tiebreaker group={groups[selectedGroup]} {contestants} {settings}/>
+            {/key}
             <div class="matches">
                 {#each $groupsStore[selectedGroup].matches as id (id)}
                     <GroupMatch {contestants} match={matches[id]}/>
