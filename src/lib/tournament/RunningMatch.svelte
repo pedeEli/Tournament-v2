@@ -105,6 +105,11 @@
     const edit = () => {
         editing = true
     }
+
+    const selectAll = (event: FocusEvent) => {
+        const input = event.target as HTMLInputElement
+        input.select()
+    }
 </script>
 
 <section bind:this={section} class:hasHighlight class:timeout={state === 'finished' && time === 0} class="running-match">
@@ -138,9 +143,9 @@
             <button on:click={finishMatch} class="btn">Beenden</button>
         </span>
     {:else if state === 'finished' || editing}
-        <input bind:value={leftScore} type="text">
+        <input bind:value={leftScore} on:focus={selectAll} type="text">
         <button class="btn center" on:click={closeMatch}>Speichern</button>
-        <input bind:value={rightScore} class="right" type="text">
+        <input bind:value={rightScore} on:focus={selectAll} class="right" type="text">
     {:else}
         <div>{leftScore}</div>
         <button class="btn center" on:click={edit}>Bearbeiten</button>
