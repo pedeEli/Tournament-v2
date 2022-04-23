@@ -39,8 +39,8 @@
     let leftScore = match.leftScore.toString()
     let rightScore = match.rightScore.toString()
 
-    $: if (!editing) match.leftScore = parseInt(leftScore)
-    $: if (!editing) match.rightScore = parseInt(rightScore)
+    $: if (!editing) match.leftScore = parseInt(leftScore) || 0
+    $: if (!editing) match.rightScore = parseInt(rightScore) || 0
     
     $: hours = Math.floor(time / 3600)
     $: minutes = Math.floor(time / 60) - hours * 60

@@ -5,8 +5,6 @@
     export let contestants: Contestants
     export let settings: Settings
 
-    
-    let winners = group.winners
     let winnersStore = toStoreKey(group, 'winners')
     $: originalSelection = Array.isArray($winnersStore) ? [] : [...$winnersStore.selection]
     $: stateStore = toStoreKey(group, 'state')
@@ -34,7 +32,7 @@
     const submit = () => {
         group.state = 'finished'
         if (Array.isArray(group.winners))
-            return  
+            return
         group.winners.selection = selection   
     }
 </script>
