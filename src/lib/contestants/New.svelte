@@ -17,7 +17,7 @@
     $: addingContestant.personName = personName
 
     const addContestant = () => {
-        if (state.phase === 'playing')
+        if (state.phase !== 'configure')
             return
         teamName = teamName.trim()
         personName = personName.trim()
@@ -65,7 +65,7 @@
 <section class="buttons">
     <button class="btn" class:active={addingType === 'team'} on:click={() => addingType = 'team'}>Team</button>
     <button class="btn" class:active={addingType === 'person'} on:click={() => addingType = 'person'}>Person</button>
-    <button class="svg btn" disabled={state.phase === 'playing'} on:click={addContestant}><Add/></button>
+    <button class="svg btn" disabled={state.phase !== 'configure'} on:click={addContestant}><Add/></button>
 </section>
 <section class="name">
     {#if addingType === 'team'}
@@ -78,7 +78,7 @@
 </section>
 {#if addingType === 'team'}
     <div class="team-members">
-        <EditableList disabled={state.phase === 'playing'} list={members} heading="Team Mitglieder"/>
+        <EditableList disabled={state.phase !== 'configure'} list={members} heading="Team Mitglieder"/>
     </div>
 {/if}
 

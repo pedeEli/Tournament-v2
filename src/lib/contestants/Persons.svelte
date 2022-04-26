@@ -13,7 +13,7 @@
         <h2>Personen</h2>
         {#each persons as id (id)}
             <div class="person">
-                <button disabled={state.phase === 'playing'} on:click={removeContestant(id)} class="btn svg"><Minus/></button>
+                <button disabled={state.phase !== 'configure'} on:click={removeContestant(id)} class="btn svg"><Minus/></button>
                 <EditableText load={getContestantName(id)} save={renameContestant(id)} width="13ch"/>
             </div>
         {/each}

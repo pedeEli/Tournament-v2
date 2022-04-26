@@ -19,7 +19,8 @@ const createEmptyTournament = (): Tournament => {
                 teamName: '',
                 personName: '',
                 members: []
-            }
+            },
+            luckyLoser: []
         },
         settings: {
             name: 'Tournier',

@@ -10,7 +10,7 @@ declare interface Tournament {
     finales: Finales
 }
 
-declare type Phase = 'configure' | 'playing'
+declare type Phase = 'configure' | 'groups' | 'groupsFinished' | 'finale'
 declare interface State {
     page: string,
     addingContestant: {
@@ -19,7 +19,8 @@ declare interface State {
         personName: string,
         members: string[]
     }
-    phase: Phase
+    phase: Phase,
+    luckyLoser: GroupWinners
 }
 
 declare interface Settings {
@@ -69,7 +70,13 @@ declare interface Groups {
 }
 
 declare type GroupState = 'running' | 'tie' | 'finished'
-declare type GroupWinners = string[] | {definite: string[], options: string[], selection: string[]}
+declare interface Tiebreaker {
+    definite: string[],
+    options: string[],
+    selection: string[],
+    remaining: number
+}
+declare type GroupWinners = string[] | Tiebreaker
 declare interface Group {
     id: string,
     name: string,

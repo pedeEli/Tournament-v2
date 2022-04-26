@@ -50,7 +50,7 @@ import { managePhaseChange } from '$lib/matches';
     let left: number
 
     const startDrag = (id: string) => ({clientX, clientY}: MouseEvent) => {
-        if (state.phase === 'playing')
+        if (state.phase !== 'configure')
             return
         grabbedContestant = id
         left = clientX
@@ -75,13 +75,13 @@ import { managePhaseChange } from '$lib/matches';
     <div class="contestants card">
         <h2>Contestants</h2>
         {#each contestantsList.filter(({id}) => !assignedContestants.find(contestant => contestant === id)) as {id, name} (id)}
-            <div on:mousedown={startDrag(id)} class:disabled={state.phase === 'playing'} class="contestant card">{name}</div>
+            <div on:mousedown={startDrag(id)} class:disabled={state.phase !== 'configure'} class="contestant card">{name}</div>
         {/each}
     </div>
     <div class="groups card">
         <header>
             <h2>Gruppen</h2>
-            <button disabled={state.phase === 'playing'} on:click={addGroup} class="btn svg"><Add/></button>
+            <button disabled={state.phase !== 'configure'} on:click={addGroup} class="btn svg"><Add/></button>
         </header>
         <div class="groups-wrapper">
             {#each Object.values($groupsStore) as {id, name} (id)}
@@ -94,7 +94,7 @@ import { managePhaseChange } from '$lib/matches';
                     mapper={(mid) => contestants[mid].name}
                     addButton={false}
                     deleteButton
-                    disabled={state.phase === 'playing'}
+                    disabled={state.phase !== 'configure'}
                 />
             {/each}
         </div>

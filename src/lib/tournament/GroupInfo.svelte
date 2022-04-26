@@ -7,11 +7,14 @@
     export let groups: Groups
     export let contestants: Contestants
     export let matches: Matches
+    export let state: State
+    export let settings: Settings
     export let id: string
 
     const group = groups[id]
     const groupStore = toStore(group)
-    $: ({state, winners} = $groupStore)
+    const stateStore = toStore(state)
+    $: ({state: groupState, winners} = $groupStore)
 
     const infos = writable(group.members.map(id => {
         const mmatches = getMatchesOf(group, matches, id)
@@ -47,12 +50,20 @@
         return definite.includes(mid) || selection.includes(mid)
     }
 
+    const isLuckyLoser = (state: State, mid: string) => {
+        if (!settings.luckyLoser)
+            return false
+        if (Array.isArray(state.luckyLoser))
+            return state.luckyLoser.includes(mid)
+        return state.luckyLoser.definite.includes(mid) || state.luckyLoser.selection.includes(mid)
+    }
+
     onDestroy(() => {
         unsubs.forEach(unsub => unsub())
     })
 </script>
 
-<section on:click class="card" class:tie={state === 'tie'}>
+<section on:click class="card" class:tie={groupState === 'tie'}>
     <div class="name">{group.name}</div>
     <div class="table">
         <span class="head left">Teilnehmer</span>
@@ -60,7 +71,7 @@
         <span class="head right">Diff</span>
         {#each $infos.sort(sortInfos) as {id, wins, diff} (id)}
             {@const {name} = contestants[id]}
-            <div class="row" class:winner={isWinner(winners, id)}>
+            <div class="row" class:lucky-loser={isLuckyLoser($stateStore, id)} class:winner={isWinner(winners, id)}>
                 <span class="left overflow" title={name}>{name}</span>
                 <span class="right">{wins}</span>
                 <span class="right">{diff}</span>
@@ -106,6 +117,10 @@
     .winner > span {
         color: hsl(var(--green-clr));
         background-color: hsl(var(--green-clr) / .1);
+    }
+    .lucky-loser > span {
+        color: hsl(var(--yellow-clr));
+        background-color: hsl(var(--yellow-clr) / .1);
     }
     .tie {
         border-color: hsl(var(--yellow-clr));

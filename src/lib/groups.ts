@@ -94,14 +94,14 @@ export const getGroupWinners = (group: Group, matches: Matches, settings: Settin
         const mmatches = getMatchesOf(group, matches, mid)
         return calcInfo(mmatches, mid)
     })
-    return getWinners(infos, settings)
+    return getWinners(infos, settings.winnerPerGroup)
 }
-export const getWinners = (infos: GroupMemberInfo[], {winnerPerGroup}: Settings) => {
+const groupAndSortMembers = (infos: GroupMemberInfo[]) => {
     const maxDiff = infos.reduce((max, {diff}) => Math.max(max, diff), 0)
     const winMultiplier = Math.pow(10, Math.floor(Math.log10(maxDiff)) + 1)
     const hasher = ({diff, wins}: GroupMemberInfo) => wins * winMultiplier + diff
 
-    const grouped = infos.reduce<{[hash: number]: GroupMemberInfo[]}>((groups, info) => {
+    const grouped = infos.reduce<Record<number, GroupMemberInfo[]>>((groups, info) => {
         const hash = hasher(info)
         const group = groups[hash] ?? []
         group.push(info)
@@ -110,6 +110,11 @@ export const getWinners = (infos: GroupMemberInfo[], {winnerPerGroup}: Settings)
     }, {})
     const hashes = Object.keys(grouped) as any as number[]
     hashes.sort((a, b) => b - a)
+
+    return {grouped, hashes}
+}
+export const getWinners = (infos: GroupMemberInfo[], winnerPerGroup: number) => {
+    const {hashes, grouped} = groupAndSortMembers(infos)
 
     let index = 0
     let winners: string[] = []
@@ -126,23 +131,129 @@ export const getWinners = (infos: GroupMemberInfo[], {winnerPerGroup}: Settings)
         options.push(...mapKey(groups, 'id'))
         break
     }
-    return {winners, options}
+    return {
+        winners,
+        options,
+        remaining: winnerPerGroup - winners.length
+    }
 }
 
 
-export const manageState = (groups: Groups, matches: Matches, settings: Settings) => {
-    const groupSubscripter = (group: Group) => {
+const getPlace = (groups: Groups, matches: Matches, place: number) => {
+    return Object.values(groups).map(group => {
+        const infos = group.members.map(mid => {
+            const mmatches = getMatchesOf(group, matches, mid)
+            return calcInfo(mmatches, mid)
+        })
+        infos.sort((a, b) => {
+            const d = b.wins - a.wins
+            if (d !== 0)
+                return d
+            return b.diff - a.diff
+        })
+        return infos[place]
+    })
+}
+
+const getLosers = (groups: Groups, matches: Matches): GroupMemberInfo[][] => {
+    return Object.values(groups).map(group => {
+        const losers = group.members.filter(mid => {
+            if (Array.isArray(group.winners))
+                return !group.winners.includes(mid)
+            return !group.winners.definite.includes(mid) && !group.winners.selection.includes(mid)
+        })
+        return losers.map(mid => {
+            const mmatches = getMatchesOf(group, matches, mid)
+            return calcInfo(mmatches, mid)
+        })
+    })
+}
+const getLuckyLoser = (groups: Groups, matches: Matches, settings: Settings) => {
+    const winnerPerGroup = settings.winnerPerGroup
+    const numberOfGroups = Object.keys(groups).length
+
+    const totalGroupWinners = winnerPerGroup * numberOfGroups
+    const totalWinners = Math.pow(2, Math.ceil(Math.log2(totalGroupWinners)))
+    const missingWinners = totalWinners - totalGroupWinners
+
+    const infos = getLosers(groups, matches)
+    const allLosers = infos.map(groupAndSortMembers)
+
+    const winners: string[] = []
+    const options: string[] = []
+    let index = 0
+    while (winners.length < missingWinners) {
+        const losers = allLosers.map(({grouped, hashes}) => grouped[hashes[index]]).flat(1)
+        index++
+        if (losers.length < missingWinners - winners.length) {
+            winners.push(...mapKey(losers, 'id'))
+            continue
+        }
+        const {winners: ws, options: os} = getWinners(losers, missingWinners - winners.length)
+        winners.push(...ws)
+        options.push(...os)
+        break
+    }
+    return {
+        winners,
+        options,
+        remaining: missingWinners - winners.length
+    }
+}
+
+
+export const manageState = (groups: Groups, matches: Matches, settings: Settings, gameState: State) => {
+    const groupStates = new Map<string, GroupState>()
+    Object.values(groups).forEach(({id, state}) => groupStates.set(id, state))
+
+    const stateSubscriber = (id: string) => (state: GroupState) => {
+        groupStates.set(id, state)
+        debugger
+
+        if (gameState.phase === 'configure')
+            return
+
+        const states = [...groupStates.values()]
+        if (states.some(state => state !== 'finished') && gameState.phase !== 'groups')
+            return gameState.phase = 'groups'
+        
+        if (gameState.phase === 'groupsFinished')
+            return
+
+            
+        if (!settings.luckyLoser)
+            return gameState.phase = 'groupsFinished'
+
+        const {options, winners, remaining} = getLuckyLoser(groups, matches, settings)
+        if (options.length === 0)
+            return gameState.luckyLoser = winners
+        gameState.luckyLoser = {
+            definite: winners,
+            options,
+            selection: [],
+            remaining 
+        }
+    }
+
+    const groupSubscriber = (group: Group) => {
         const matchStates = new Map<string, MatchState>()
         group.matches.forEach(mid => matchStates.set(mid, matches[mid].state))
 
+        const unsub1 = toStoreKey(group, 'state').subscribe(stateSubscriber(group.id))
+
         const setWinner = () => {
-            const {winners, options} = getGroupWinners(group, matches, settings)
+            const {winners, options, remaining} = getGroupWinners(group, matches, settings)
+            group.state = 'tie'
             if (options.length === 0) {
                 group.winners = winners
-                return group.state === 'finished'
+                return group.state = 'finished'
             }
-            group.winners = {definite: winners, options, selection: []}
-            group.state = 'tie'
+            group.winners = {
+                definite: winners,
+                options,
+                selection: [],
+                remaining
+            }
         }
         
         const scoreSubscriber = (scores: {left: number, right: number}, side: 'left' | 'right') => (score: number) => {
@@ -178,11 +289,16 @@ export const manageState = (groups: Groups, matches: Matches, settings: Settings
             }
         }
 
-        return toSmartStore<string, string, number>(
+        const unsub2 = toSmartStore<string, string, number>(
             toStoreKey(group, 'matches'),
             index => group.matches[index],
             id => id,
             matchSubscriber)
+            
+        return () => {
+            unsub1()
+            unsub2()
+        }
     }
-    return toCommonSmartStore(groups, groupSubscripter)
+    return toCommonSmartStore(groups, groupSubscriber)
 }

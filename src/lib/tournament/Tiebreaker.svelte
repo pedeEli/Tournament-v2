@@ -1,60 +1,46 @@
 <script lang="ts">
+    import {createEventDispatcher} from 'svelte'
     import {toStoreKey} from '$lib/tournament';
 
-    export let group: Group
+    export let tiebreaker: Tiebreaker
     export let contestants: Contestants
-    export let settings: Settings
+    export let heading = 'Tiebreaker'
 
-    let winnersStore = toStoreKey(group, 'winners')
-    $: originalSelection = Array.isArray($winnersStore) ? [] : [...$winnersStore.selection]
-    $: stateStore = toStoreKey(group, 'state')
-    const getInfo = (winners: GroupWinners, selection: string[]) => {
-        if (Array.isArray(winners))
-            return
-        const remaining = settings.winnerPerGroup - winners.definite.length
-        const diff = remaining - selection.length
-        const prompt = `Es ${diff === 1 ? 'muss' : 'müssen'} ${diff === 0 ? 'keine mehr' : `noch ${diff === 1 ? 'einer' : diff}`} ausgewählt werden.`
-        return {diff, prompt, ...winners}
-    }
-
+    $: originalSelection = [...tiebreaker.selection]
     $: selection = originalSelection
-    $: info = getInfo($winnersStore, selection)
+    $: diff = tiebreaker.remaining - selection.length
+    $: prompt = `Es ${diff === 1 ? 'muss' : 'müssen'} ${diff === 0 ? 'keine mehr' : `noch ${diff === 1 ? 'einer' : diff}`} ausgewählt werden.`
+
 
     const toggle = (id: string) => () => {
-        if (Array.isArray($winnersStore))
-            return
         const index = selection.findIndex(id_ => id === id_)
         if (index === -1)
             return selection = [...selection, id]
         selection = [...selection.slice(0, index), ...selection.slice(index + 1)]
     }
 
+    const dispatch = createEventDispatcher()
     const submit = () => {
-        group.state = 'finished'
-        if (Array.isArray(group.winners))
-            return
-        group.winners.selection = selection   
+        dispatch('submit', selection)
     }
 </script>
 
-{#if info}
-    <section class="card">
-        <h3>
-            <span>Tiebreaker</span>
-            <button class="btn" disabled={info.diff !== 0 || ($stateStore === 'finished' && originalSelection.every(mid => selection.includes(mid)))} on:click={submit}>
-                {#if $stateStore === 'tie'} Bestätigen {:else} Ändern {/if}
-            </button>
-        </h3>
-        <div class="prompt">{info.prompt}</div>
-        <div class="contestants">
-            {#each info.options as id}
-                {@const {name} = contestants[id]}
-                {@const active = selection.includes(id)}
-                <button class="btn contestant" class:active disabled={info.diff === 0 && !active} title={name} on:click={toggle(id)}>{name}</button>
-            {/each}
-        </div>
-    </section>
-{/if}
+<section class="card">
+    <h3>
+        <span>{heading}</span>
+        <button class="btn" disabled={diff !== 0 || (originalSelection.length !== 0 && originalSelection.every(mid => selection.includes(mid)))} on:click={submit}>
+            {#if originalSelection.length === 0} Bestätigen {:else} Ändern {/if}
+        </button>
+    </h3>
+    <div class="prompt">{prompt}</div>
+    <div class="contestants">
+        {#each tiebreaker.options as id}
+            {@const {name} = contestants[id]}
+            {@const active = selection.includes(id)}
+            <button class="btn contestant" class:active disabled={diff === 0 && !active} title={name} on:click={toggle(id)}>{name}</button>
+        {/each}
+    </div>
+</section>
 
 <style>
     section {

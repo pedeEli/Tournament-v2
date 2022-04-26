@@ -11,12 +11,12 @@
     const {matches, groups, state, settings} = getContext<Tournament>('tournament')
 
     const cleanUp1 = manageTimeAndState(matches)
-    const cleanUp2 = manageState(groups, matches, settings)
+    const cleanUp2 = manageState(groups, matches, settings, state)
 
     let cleanUp3: () => void
     if (state.phase === 'configure') {
-        const unsub1 = managePhaseChange(matches, state)
-        const unsub2 = toStoreKey(state, 'phase').subscribe(phase => phase === 'playing' && cleanUp3())
+        const unsub1 = managePhaseChange(groups, matches, settings, state)
+        const unsub2 = toStoreKey(state, 'phase').subscribe(phase => phase !== 'configure' && cleanUp3())
         cleanUp3 = () => {
             unsub1()
             unsub2()

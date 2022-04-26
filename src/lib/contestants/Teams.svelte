@@ -24,7 +24,7 @@
                     loadHeading={getContestantName(id)}
                     saveHeading={renameContestant(id)}
                     list={loadMembers(id)}
-                    disabled={state.phase === 'playing'}
+                    disabled={state.phase !== 'configure'}
                 />
             {/each}
         </div>

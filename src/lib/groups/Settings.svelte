@@ -19,16 +19,16 @@
 
 <section class="inputs">
     <label for="winner-per-group">Gewinner pro Gruppe</label>
-    {#if state.phase === 'playing'}
+    {#if state.phase !== 'configure'}
         <div>{winnerPerGroup}</div>
     {:else}
         <input id="winner-per-group" type="text" bind:value={winnerPerGroup}>
     {/if}
     {#if luckyLoserPossible}
         <div class="label">Lucky Loser</div>
-        <Checkbox disabled={state.phase === 'playing'} bind:value={settings.luckyLoser}/>
+        <Checkbox disabled={state.phase !== 'configure'} bind:value={settings.luckyLoser}/>
     {/if}
-    <button class="btn randomize" disabled={state.phase === 'playing'} on:click={assignRandom}>Zufällig verteilen</button>
+    <button class="btn randomize" disabled={state.phase !== 'configure'} on:click={assignRandom}>Zufällig verteilen</button>
 </section>
 
 <style>

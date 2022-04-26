@@ -34,7 +34,7 @@
 
 <h1>
     Gruppen configurieren
-    <Checkbox disabled={state.phase === 'playing'} bind:value={settings.haveGroups}/>
+    <Checkbox disabled={state.phase !== 'configure'} bind:value={settings.haveGroups}/>
 </h1>
 {#if $settingsStore.haveGroups}
     <div class="contestant-count">Es gibt insgesamt {contestantsList.length} Teilnehmer</div>
