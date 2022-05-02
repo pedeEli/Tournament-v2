@@ -15,7 +15,7 @@
     <div class="links">
         <ul>
             {#each routes as {href, name}}
-                <li on:click={() => route = href} class="btn" class:active={route === href}><a {href}>{name}</a></li>
+                <li><a on:click={() => route = href} class="btn" class:active={route === href} {href}>{name}</a></li>
             {/each}
         </ul>
     </div>
