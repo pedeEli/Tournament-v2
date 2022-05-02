@@ -204,12 +204,13 @@ const getLuckyLoser = (groups: Groups, matches: Matches, settings: Settings) => 
 
 export const manageState = (groups: Groups, matches: Matches, settings: Settings, gameState: State) => {
     const groupStates = new Map<string, GroupState>()
-    Object.values(groups).forEach(({id, state}) => groupStates.set(id, state))
-
-    const stateSubscriber = (id: string) => (state: GroupState) => {
+    const groupWinners = new Map<string, string>()
+    Object.values(groups).forEach(({id, state, winners}) => {
         groupStates.set(id, state)
-        debugger
+        groupWinners.set(id, JSON.stringify(winners))
+    })
 
+    const handleLuckyLoser = () => {
         if (gameState.phase === 'configure')
             return
 
@@ -223,7 +224,7 @@ export const manageState = (groups: Groups, matches: Matches, settings: Settings
             
         if (!settings.luckyLoser)
             return gameState.phase = 'groupsFinished'
-
+            
         const {options, winners, remaining} = getLuckyLoser(groups, matches, settings)
         if (options.length === 0)
             return gameState.luckyLoser = winners
@@ -235,11 +236,23 @@ export const manageState = (groups: Groups, matches: Matches, settings: Settings
         }
     }
 
+    const stateSubscriber = (id: string) => (state: GroupState) => {
+        groupStates.set(id, state)
+        handleLuckyLoser()
+    }
+
     const groupSubscriber = (group: Group) => {
         const matchStates = new Map<string, MatchState>()
         group.matches.forEach(mid => matchStates.set(mid, matches[mid].state))
 
         const unsub1 = toStoreKey(group, 'state').subscribe(stateSubscriber(group.id))
+        const unsub2 = toStoreKey(group, 'winners').subscribe(winners => {
+            const winnersStr = JSON.stringify(winners)
+            if (winnersStr === groupWinners.get(group.id))
+                return
+            gameState.phase = 'groups'
+            handleLuckyLoser()
+        })
 
         const setWinner = () => {
             const {winners, options, remaining} = getGroupWinners(group, matches, settings)
@@ -289,7 +302,7 @@ export const manageState = (groups: Groups, matches: Matches, settings: Settings
             }
         }
 
-        const unsub2 = toSmartStore<string, string, number>(
+        const unsub3 = toSmartStore<string, string, number>(
             toStoreKey(group, 'matches'),
             index => group.matches[index],
             id => id,
@@ -298,6 +311,7 @@ export const manageState = (groups: Groups, matches: Matches, settings: Settings
         return () => {
             unsub1()
             unsub2()
+            unsub3()
         }
     }
     return toCommonSmartStore(groups, groupSubscriber)
