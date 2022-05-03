@@ -139,22 +139,6 @@ export const getWinners = (infos: GroupMemberInfo[], winnerPerGroup: number) => 
 }
 
 
-const getPlace = (groups: Groups, matches: Matches, place: number) => {
-    return Object.values(groups).map(group => {
-        const infos = group.members.map(mid => {
-            const mmatches = getMatchesOf(group, matches, mid)
-            return calcInfo(mmatches, mid)
-        })
-        infos.sort((a, b) => {
-            const d = b.wins - a.wins
-            if (d !== 0)
-                return d
-            return b.diff - a.diff
-        })
-        return infos[place]
-    })
-}
-
 const getLosers = (groups: Groups, matches: Matches): GroupMemberInfo[][] => {
     return Object.values(groups).map(group => {
         const losers = group.members.filter(mid => {
@@ -248,6 +232,10 @@ export const manageState = (groups: Groups, matches: Matches, settings: Settings
         const unsub1 = toStoreKey(group, 'state').subscribe(stateSubscriber(group.id))
         const unsub2 = toStoreKey(group, 'winners').subscribe(winners => {
             const winnersStr = JSON.stringify(winners)
+            if (!groupWinners.has(group.id)) {
+                groupWinners.set(group.id, winnersStr)
+                return
+            }
             if (winnersStr === groupWinners.get(group.id))
                 return
             gameState.phase = 'groups'
