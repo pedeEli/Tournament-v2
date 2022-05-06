@@ -31,10 +31,7 @@ declare interface Settings {
     defaultTime: number
 }
 
-declare interface Contestants {
-    [id: string]: Contestant
-}
-
+declare type Contestants = Record<string, Contestant>
 declare type Contestant = Person | Team
 
 declare interface Person {
@@ -50,11 +47,8 @@ declare interface Team {
     members: string[]
 }
 
-declare interface Matches {
-    [id: string]: Match
-}
-
-type MatchState = 'waiting' | 'pinned' | 'running' | 'paused' | 'finished' | 'closed'
+declare type Matches = Record<string, Match>
+declare type MatchState = 'waiting' | 'pinned' | 'running' | 'paused' | 'finished' | 'closed'
 declare interface Match {
     id: string,
     state: MatchState,
@@ -86,14 +80,14 @@ declare interface Group {
     winners: GroupWinners
 }
 
-declare interface Finales {
-    [id: string]: Finale
-}
-
+declare type Finales = Record<string, Finale>
 declare interface Finale {
-    id: string
-    parentId: string,
-    matchId: string
+    id: string,
+    level: number,
+    match: string,
+    parent?: string,
+    left?: string,
+    right?: string
 }
 
 declare type Writable<T> = import('svelte/store').Writable<T>

@@ -8,7 +8,6 @@
         removeMatches,
         removeMatchesOfContestant
     } from '$lib/groups'
-import { managePhaseChange } from '$lib/matches';
 
     export let contestants: Contestants
     export let contestantsList: Contestant[]

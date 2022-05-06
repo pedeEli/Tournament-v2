@@ -34,7 +34,7 @@
             <GroupInfo on:click={() => selectedGroup = id} {id} {groups} {contestants} {matches} {state} {settings}/>
         {/each}
     </section>
-        <section class="selected-group">
+    <section class="selected-group">
         {#if settings.luckyLoser}
             <LuckyLoser {state} {contestants} {groups}/>
         {/if}

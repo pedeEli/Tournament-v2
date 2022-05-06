@@ -56,7 +56,7 @@ export const toStoreKey = <T extends object, K extends keyof T>(obj: T, key: K):
     }
 }
 
-export const createId = (ids: string[]) => {
+export const createId = (ids: string[]): string => {
     const id = v4()
     if (ids.find(i => i === id))
         return createId(ids)
