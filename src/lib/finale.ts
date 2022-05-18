@@ -1,4 +1,4 @@
-import {toStoreKey, createId} from '$lib/tournament'
+import {toStoreKey, createId, toCommonSmartStore} from '$lib/tournament'
 
 export const manageFinaleMatches = (matches: Matches, groups: Groups, finale: Finales, state: State, settings: Settings) => {
     return toStoreKey(state, 'phase').subscribe(phase => {
@@ -26,6 +26,7 @@ export const manageFinaleMatches = (matches: Matches, groups: Groups, finale: Fi
 
         const mids = Object.keys(matches)
         let fmatches = pairs.map(createMatch(mids))
+        fmatches.forEach(m => matches[m.id] = m)
 
         const fids = []
         let finales = fmatches.map(createFinale(fids))
@@ -95,4 +96,17 @@ const createNextFinale = (finales: Finale[], fids: string[], mids: string[]) => 
         })
     }
     return [nextFinales, finaleMatches] as const
+}
+
+
+export const managePhaseChangeToFinale = (matches: Matches, finales: Finales, gameState: State) => {
+    return toCommonSmartStore<Finale>(finales, finale => {
+        const match = matches[finale.match]
+        return toStoreKey(match, 'state').subscribe(state => {
+            if (state === 'waiting')
+                return
+            
+            gameState.phase = 'finale'
+        })
+    })
 }

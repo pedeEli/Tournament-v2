@@ -38,23 +38,16 @@ export const manageTimeAndState = (matches: Matches) => {
     return toCommonSmartStore(matches, matchSubscriber, cleanUp)
 }
 
-export const managePhaseChange = (groups: Groups, matches: Matches, settings: Settings, state: State) => {
+export const managePhaseChangeFromConfigure = (groups: Groups, matches: Matches, settings: Settings, state: State) => {
     return toCommonSmartStore<Match>(matches, match => {
         return toStoreKey(match, 'state').subscribe(matchState => {
             if (matchState === 'waiting')
                 return
             
-            if (state.phase === 'configure') {
-                const luckyLoserPossible = Math.log2(settings.winnerPerGroup * Object.keys(groups).length) % 1 !== 0
-                settings.luckyLoser = luckyLoserPossible ? settings.luckyLoser : false
-    
-                state.phase = 'groups'
-                return
-            }
+            const luckyLoserPossible = Math.log2(settings.winnerPerGroup * Object.keys(groups).length) % 1 !== 0
+            settings.luckyLoser = luckyLoserPossible ? settings.luckyLoser : false
 
-            if (state.phase !== 'groupsFinished')
-                return
-            state.phase = 'finale'
+            state.phase = 'groups'
         })
     })
 }
