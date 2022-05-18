@@ -1,6 +1,6 @@
 import {toStoreKey, createId} from '$lib/tournament'
 
-export const manageFinaleMatches = (matches: Matches, groups: Groups, finale: Finale, state: State, settings: Settings) => {
+export const manageFinaleMatches = (matches: Matches, groups: Groups, finale: Finales, state: State, settings: Settings) => {
     return toStoreKey(state, 'phase').subscribe(phase => {
         if (phase !== 'groupsFinished')
             return

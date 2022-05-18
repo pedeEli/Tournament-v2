@@ -44,10 +44,17 @@ export const managePhaseChange = (groups: Groups, matches: Matches, settings: Se
             if (matchState === 'waiting')
                 return
             
-            const luckyLoserPossible = Math.log2(settings.winnerPerGroup * Object.keys(groups).length) % 1 !== 0
-            settings.luckyLoser = luckyLoserPossible ? settings.luckyLoser : false
+            if (state.phase === 'configure') {
+                const luckyLoserPossible = Math.log2(settings.winnerPerGroup * Object.keys(groups).length) % 1 !== 0
+                settings.luckyLoser = luckyLoserPossible ? settings.luckyLoser : false
+    
+                state.phase = 'groups'
+                return
+            }
 
-            state.phase = 'groups'
+            if (state.phase !== 'groupsFinished')
+                return
+            state.phase = 'finale'
         })
     })
 }

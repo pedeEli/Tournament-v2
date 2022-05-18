@@ -199,13 +199,15 @@ export const manageState = (groups: Groups, matches: Matches, settings: Settings
             return
 
         const states = [...groupStates.values()]
-        if (states.some(state => state !== 'finished') && gameState.phase !== 'groups')
+        const notAllFinished = states.some(state => state !== 'finished');
+        if (notAllFinished && gameState.phase !== 'groups')
             return gameState.phase = 'groups'
-        
+        if (notAllFinished)
+            return;
+
         if (gameState.phase === 'groupsFinished')
             return
 
-            
         if (!settings.luckyLoser)
             return gameState.phase = 'groupsFinished'
             
