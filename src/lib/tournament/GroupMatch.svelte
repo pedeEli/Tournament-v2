@@ -10,6 +10,7 @@
 
     export let match: Match
     export let contestants: Contestants
+    export let editable: boolean
 
     const matchStore = toStore(match)
     const leftName = contestants[match.left].name
@@ -17,7 +18,11 @@
 
     $: state = $matchStore.state
 
-    const select = () => $selectedMatch = match.id
+    const select = () => {
+        if (!editable)
+            return
+        $selectedMatch = match.id
+    }
 
     const stateIcons = {
         running: Play,
@@ -27,7 +32,7 @@
     }
 </script>
 
-<section on:click={select}>
+<section class:editable on:click={select}>
     <GroupMatchName side="left" name={leftName} won={(a, b) => a > b} {matchStore}/>
     <div class="line-wrapper">
         <div class="line"></div>
@@ -49,10 +54,12 @@
     }
     section {
         display: contents;
-        cursor: pointer;
     }
-    section:hover {
+    .editable:hover {
         --bg-clr: hsl(var(--light-gray-clr));
+    }
+    .editable {
+        cursor: pointer;
     }
     .line-wrapper {
         height: 100%;

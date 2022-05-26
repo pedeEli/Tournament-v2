@@ -23,8 +23,8 @@
         const group = groups[selectedGroup as string]
         if (group.state === 'finished')
             group.state = 'tie'
-        group.state = 'finished';
-        (group.winners as globalThis.Tiebreaker).selection = selection
+        group.state = 'finished'
+        ;(group.winners as globalThis.Tiebreaker).selection = selection
     }
 </script>
 
@@ -45,7 +45,7 @@
             {/if}
             <div class="matches">
                 {#each $groupsStore[selectedGroup].matches as id (id)}
-                    <GroupMatch {contestants} match={matches[id]}/>
+                    <GroupMatch {contestants} match={matches[id]} editable={state.phase !== 'finale'}/>
                 {/each}
             </div>
         {/if}
