@@ -3,6 +3,7 @@
     export let won: (a: number, b: number) => boolean
     export let name: string
     export let side: 'left' | 'right'
+    export let orientation = side
 
     $: ({state, leftScore, rightScore} = $matchStore)
 
@@ -15,15 +16,15 @@
         : 'loss'
 </script>
 
-<div class="card {color} {side}" title={name}>
-    {#if state === 'closed' && side === 'right'}
-        <div class="score">({rightScore})</div>
+<div class="card {color} {orientation}" title={name}>
+    {#if state === 'closed' && orientation === 'right'}
+        <div class="score">({$matchStore[`${side}Score`]})</div>
     {/if}
     <div class="name">
         {#if name} {name} {:else} &nbsp; {/if}
     </div>
-    {#if state === 'closed' && side === 'left'}
-        <div class="score">({leftScore})</div>
+    {#if state === 'closed' && orientation === 'left'}
+        <div class="score">({$matchStore[`${side}Score`]})</div>
     {/if}
 </div>
 

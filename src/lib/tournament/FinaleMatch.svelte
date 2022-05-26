@@ -31,7 +31,7 @@
         <div class="line"></div>
     </div>
     <div class="bottom" style="--row: {row + 2 + lineSpan};">
-        <GroupMatchName {matchStore} name={rightName} side="left" won={(a, b) => a < b}/>
+        <GroupMatchName {matchStore} name={rightName} side="right" orientation="left" won={(a, b) => a < b}/>
     </div>
 </section>
 
