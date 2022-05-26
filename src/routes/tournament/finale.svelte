@@ -22,7 +22,13 @@
         {#each columns as column, columnIndex}
             {#each column as finale, rowIndex}
                 {@const rowAdd = columnIndex === 0 ? 1 : 3 * Math.pow(2, columnIndex - 1)}
-                <FinaleMatch match={matches[finale.match]} {contestants} column={columnIndex + 1} row={rowIndex * 6 * Math.pow(2, columnIndex) + rowAdd}/>
+                <FinaleMatch
+                    match={matches[finale.match]}
+                    {contestants}
+                    column={columnIndex + 1}
+                    row={rowIndex * 6 * Math.pow(2, columnIndex) + rowAdd}
+                    editable={finale.parent == null || matches[finale.parent]?.state === 'waiting'}
+                />
             {/each}
         {/each}
     </div>

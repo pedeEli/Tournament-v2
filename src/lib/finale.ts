@@ -140,7 +140,7 @@ export const propagateFinaleWinners = (matches: Matches, finales: Finales) => {
         const side = parent.left === finale.id ? 'left' : 'right' as const
 
         const propagateWinner = () => {
-            if (match.state !== 'closed')
+            if (match.state !== 'closed' || parentMatch.state !== 'waiting')
                 return
             const winner = match.leftScore > match.rightScore ? match.left : match.right
             parentMatch[side] = winner

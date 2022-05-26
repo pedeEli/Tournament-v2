@@ -7,6 +7,7 @@
     export let contestants: Contestants
     export let column: number
     export let row: number
+    export let editable: boolean
 
     const matchStore = toStore(match)
     $: leftName = contestants[$matchStore.left]?.name ?? ''
@@ -14,7 +15,7 @@
     $: selectable = $matchStore.left && $matchStore.right
 
     const select = () => {
-        if (!selectable)
+        if (!selectable || !editable)
             return
         $selectedMatch = match.id
     }
@@ -22,7 +23,7 @@
     const lineSpan = column === 1 ? 2 : Math.pow(2, column - 2) * 6 - 2
 </script>
 
-<section class="match" class:selectable on:click={select} style="--column: {column};">
+<section class="match" class:selectable={selectable && editable} on:click={select} style="--column: {column};">
     <div class="top" style="--row: {row};">
         <GroupMatchName {matchStore} name={leftName} side="left" won={(a, b) => a > b}/>
     </div>
