@@ -19,7 +19,9 @@
     {#if state === 'closed' && side === 'right'}
         <div class="score">({rightScore})</div>
     {/if}
-    <div class="name">{name}</div>
+    <div class="name">
+        {#if name} {name} {:else} &nbsp; {/if}
+    </div>
     {#if state === 'closed' && side === 'left'}
         <div class="score">({leftScore})</div>
     {/if}

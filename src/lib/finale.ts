@@ -26,17 +26,20 @@ export const manageFinaleMatches = (matches: Matches, groups: Groups, finale: Fi
 
         const mids = Object.keys(matches)
         let fmatches = pairs.map(createMatch(mids))
-        fmatches.forEach(m => matches[m.id] = m)
+        const allMatches = [...fmatches]
 
         const fids = []
         let finales = fmatches.map(createFinale(fids))
-        finales.forEach(f => finale[f.id] = f)
+        const allFinales = [...finales]
 
         while (finales.length > 1) {
             [finales, fmatches] = createNextFinale(finales, fids, mids)
-            finales.forEach(f => finale[f.id] = f)
-            fmatches.forEach(m => matches[m.id] = m)
+            allFinales.push(...finales)
+            allMatches.push(...fmatches)
         }
+
+        allMatches.forEach(m => matches[m.id] = m)
+        allFinales.forEach(f => finale[f.id] = f)
     })
 }
 
@@ -109,4 +112,18 @@ export const managePhaseChangeToFinale = (matches: Matches, finales: Finales, ga
             gameState.phase = 'finale'
         })
     })
+}
+
+
+export const generateColumns = (finales: Finale[]) => {
+    const grandFinale = finales.find(finale => !finale.parent)
+    let column: Finale[] = [grandFinale]
+    const columns: Finale[][] = []
+
+    while (column.length) {
+        columns.unshift(column)
+        column = column.map(parent => finales.filter(finale => finale.parent === parent.id)).flat()
+    }
+
+    return columns
 }
