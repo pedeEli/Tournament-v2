@@ -127,3 +127,33 @@ export const generateColumns = (finales: Finale[]) => {
 
     return columns
 }
+
+
+export const propagateFinaleWinners = (matches: Matches, finales: Finales) => {
+    return toCommonSmartStore<Finale>(finales, finale => {
+        if (!finale.parent)
+            return
+        
+        const match = matches[finale.match]
+        const parent = finales[finale.parent]
+        const parentMatch = matches[parent.match]
+        const side = parent.left === finale.id ? 'left' : 'right' as const
+
+        const propagateWinner = () => {
+            if (match.state !== 'closed')
+                return
+            const winner = match.leftScore > match.rightScore ? match.left : match.right
+            parentMatch[side] = winner
+        }
+
+        const unsub1 = toStoreKey(match, 'state').subscribe(propagateWinner)
+        const unsub2 = toStoreKey(match, 'leftScore').subscribe(propagateWinner)
+        const unsub3 = toStoreKey(match, 'rightScore').subscribe(propagateWinner)
+
+        return () => {
+            unsub1()
+            unsub2()
+            unsub3()
+        }
+    })
+}

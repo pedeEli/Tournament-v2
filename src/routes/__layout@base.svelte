@@ -5,42 +5,45 @@
     import {manageTimeAndState, managePhaseChangeFromConfigure} from '$lib/matches'
     import {manageState} from '$lib/groups'
     import {toStoreKey} from '$lib/tournament'
-    import {manageFinaleMatches, managePhaseChangeToFinale} from '$lib/finale'
+    import {manageFinaleMatches, managePhaseChangeToFinale, propagateFinaleWinners} from '$lib/finale'
 
     $: useGrid = $page.url.pathname.startsWith('/tournament')
 
     const {matches, groups, state, settings, finales} = getContext<Tournament>('tournament')
 
     const cleanUp1 = manageTimeAndState(matches)
-    const cleanUp2 = manageState(groups, matches, settings, state)
 
-    let cleanUp3: () => void
+    let cleanUp2: () => void
     if (state.phase === 'configure') {
         const unsub1 = managePhaseChangeFromConfigure(groups, matches, settings, state)
-        const unsub2 = toStoreKey(state, 'phase').subscribe(phase => phase !== 'configure' && cleanUp3())
+        const unsub2 = toStoreKey(state, 'phase').subscribe(phase => phase !== 'configure' && cleanUp2())
+        cleanUp2 = () => {
+            unsub1()
+            unsub2()
+        }
+    }
+
+    let cleanUp3: () => void
+    if (state.phase !== 'finale') {
+        const unsub1 = manageState(groups, matches, settings, state)
+        const unsub2 = manageFinaleMatches(matches, groups, finales, state, settings)
+        const unsub3 = managePhaseChangeToFinale(matches, finales, state)
+        const unsub4 = toStoreKey(state, 'phase').subscribe(phase => phase === 'finale' && cleanUp3())
         cleanUp3 = () => {
             unsub1()
             unsub2()
+            unsub3()
+            unsub4()
         }
     }
 
-    let cleanUp4: () => void
-    if (state.phase !== 'finale') {
-        const unsub1 = manageFinaleMatches(matches, groups, finales, state, settings)
-        const unsub2 = managePhaseChangeToFinale(matches, finales, state)
-        const unsub3 = toStoreKey(state, 'phase').subscribe(phase => phase === 'finale' && cleanUp4())
-        cleanUp4 = () => {
-            unsub1()
-            unsub2()
-            unsub3()
-        }
-    }
+    const cleanUp4 = propagateFinaleWinners(matches, finales)
 
     onDestroy(() => {
         cleanUp1()
-        cleanUp2()
+        cleanUp2 && cleanUp2()
         cleanUp3 && cleanUp3()
-        cleanUp4 && cleanUp4()
+        cleanUp4()
     })
 </script>
 
