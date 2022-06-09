@@ -23,7 +23,7 @@ const createEmptyTournament = (): Tournament => {
             luckyLoser: []
         },
         settings: {
-            name: 'Tournier',
+            name: 'Turnier',
             haveGroups: true,
             luckyLoser: true,
             winnerPerGroup: 2,

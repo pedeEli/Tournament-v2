@@ -15,7 +15,7 @@
         <li class="name"><EditableText bind:editing load={() => tournament.settings.name} save={(value) => tournament.settings.name = value}/></li>
         <li class="underline"><a href="/contestants">Teams</a></li>
         <li class="underline"><a href="/groups">Gruppen</a></li>
-        <li class="underline"><a href="/tournament">Tournier</a></li>
+        <li class="underline"><a href="/tournament">Turnier</a></li>
     </ul>
 </nav>
 

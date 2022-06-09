@@ -10,7 +10,7 @@
     $: route = $page.url.pathname
 </script>
 
-<h1>Tournier</h1>
+<h1>Turnier</h1>
 <div class="wrapper">
     <div class="links">
         <ul>
