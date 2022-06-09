@@ -3,9 +3,8 @@
     import Matches from '$lib/tournament/Matches.svelte'
 
     const routes = [
-        {href: '/tournament', name: 'Gruppen'},
-        {href: '/tournament/finale', name: 'Finale'},
-        {href: '/tournament/contestants', name: 'Teilnehmer'},
+        {href: '/tournament/groups', name: 'Gruppen'},
+        {href: '/tournament/finale', name: 'Finale'}
     ]
     $: route = $page.url.pathname
 </script>
