@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components {
+  .btn {
+    @apply focus:outline-none relative before:absolute before:inset-0 px-[1em] py-[0.5em] rounded-[0.25rem] disabled:text-font/50 overflow-hidden select-none text-center;
+    @apply before:hover:bg-primary/10 before:focus:bg-primary/20 before:disabled:hover:bg-transparent;
+  }
+  .btn.btn-secondary {
+    @apply before:hover:bg-secondary/10 before:focus:bg-secondary/20 before:disabled:hover:bg-transparent;
+  }
+  .btn.btn-raised {
+    @apply bg-primary before:hover:bg-white/10 before:focus:bg-white/20 shadow-md disabled:bg-white/40 before:disabled:hover:bg-transparent;
+  }
+  .btn.btn-raised.btn-secondary {
+    @apply bg-secondary before:hover:bg-white/10 before:focus:bg-white/20 shadow-md disabled:bg-white/40 before:disabled:hover:bg-transparent
+  }
+  .btn-svg {
+    @apply p-0 h-[2.1em] w-[2.1em];
+  }
+
+  input[type="text"], input[type="number"] {
+    @apply border border-white/30 rounded-md py-1 px-3 outline-none bg-transparent;
+  }
+  
+  h1 {
+    @apply text-4xl;
+  }
+  h2 {
+    @apply text-2xl;
+  }
+
+  .card {
+    @apply rounded-md border border-white/30 py-[0.7em] px-[min(2em,2rem)];
+  }
+
+  .text-overflow {
+    @apply overflow-hidden whitespace-nowrap text-ellipsis;
+  }
+
+  
+  .running-match-highlight {
+    animation-name: highlight;
+    animation-duration: 1000ms;
+    animation-timing-function: ease-in;
+  }
+  @keyframes highlight {
+    0% {
+      @apply text-draw;
+    }
+    100% {
+      @apply text-inherit;
+    }
+  }
+}
+
+::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-secondary/30 rounded-full m-2;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-secondary rounded-full;
+}
+
+::-webkit-scrollbar-corner {
+  @apply bg-none;
+}

@@ -1,0 +1,52 @@
+/**
+ * @see https://www.electron.build/configuration/configuration
+ */
+{
+  appId: "Turnier",
+  productName: "Turnier",
+  copyright: "Copyright © 2022 ${author}",
+  asar: true,
+  directories: {
+    output: "release/${version}",
+    buildResources: "electron/resources",
+  },
+  files: ["dist"],
+  win: {
+    target: [
+      {
+        target: "nsis",
+        arch: ["x64"],
+      },
+    ],
+    artifactName: "${productName}-Windows-${version}-Setup.${ext}",
+    "icon": "electron/resources/icon.ico"
+  },
+  nsis: {
+    oneClick: false,
+    perMachine: true,
+    allowToChangeInstallationDirectory: true,
+    deleteAppDataOnUninstall: false,
+  },
+  mac: {
+    target: ["dmg"],
+    artifactName: "${productName}-Mac-${version}-Installer.${ext}",
+    "icon": "electron/resources/icon.icns"
+  },
+  linux: {
+    icon: "electron/resources/iconset",
+    target: ["AppImage", "deb"],
+    artifactName: "${productName}-Linux-${version}.${ext}",
+  },
+  "extraMetadata": {
+    "main": "dist/electron/main/index.js"
+  },
+  "extends": null,
+  "fileAssociations": [
+    {
+      "ext": "tnm",
+      "name": "Tournament File",
+      "role": "Editor",
+      "icon": "electron/resources/icon"
+    }
+  ]
+}
