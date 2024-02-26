@@ -58,7 +58,9 @@ export const handleLoadFile = (callback: () => void) => async (event: any, filep
   const tnm = JSON.parse(file) as App.Tournament
   
   clearTournament()
-  tournament.version = tnm.version
+  if (tournament.version !== tnm.version) {
+    updateOldTournament(tnm, tournament.version)
+  }
 
   const tnmMatches = new Set<App.Id>()
   Object.values(tnm.contestants).forEach(contestant => contestants[contestant.id] = contestant)
@@ -128,6 +130,8 @@ export const clearTournament = () => {
   settings.name = tnm.settings.name
   settings.winnerPerGroup = tnm.settings.winnerPerGroup
   settings.groups = tnm.settings.groups
+  settings.pointsPerWin = tnm.settings.pointsPerWin
+  settings.pointsPerDraw = tnm.settings.pointsPerDraw
 
   state.phase = tnm.state.phase
   state.luckyLoser = tnm.state.luckyLoser
@@ -150,4 +154,20 @@ const collectBrackets = (root: App.Bracket, brackets: App.Brackets): App.Bracket
   if (right)
     result.unshift(...collectBrackets(brackets[right], brackets))
   return result
+}
+
+
+const parseVersion = (version: string): [major: number, minor: number, patch: number] => {
+  const [major, minor, patch] = version.split('.')
+  return [parseInt(major), parseInt(minor), parseInt(patch)]
+}
+
+
+const updateOldTournament = (tnm: App.Tournament, currentVersion: string) => {
+  const [major, minor] = parseVersion(tnm.version)
+  if (major === 1 && minor === 0) {
+    tnm.settings.pointsPerWin = 1
+    tnm.settings.pointsPerDraw = 0
+  }
+  tnm.version = currentVersion
 }

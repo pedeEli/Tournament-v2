@@ -21,7 +21,9 @@ export const createEmptyTournament = (): App.Tournament => {
       luckyLoser: true,
       groups: true,
       winnerPerGroup: 2,
-      defaultTime: 15 * 60
+      defaultTime: 15 * 60,
+      pointsPerWin: 3,
+      pointsPerDraw: 1
     },
     contestants: {},
     matches: {},

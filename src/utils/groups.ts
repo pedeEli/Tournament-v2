@@ -79,20 +79,22 @@ export const getMatchesOf = (group: App.Group, contestant: App.Id) => {
 }
 export const calcInfo = (matches: App.Match[], contestant: App.Id) => {
   return matches.reduce<App.GroupMemberInfo>((acc, cur) => {
-    if (cur.left === contestant) {
+    if (cur.leftScore === cur.rightScore) {
+      acc.points += settings.pointsPerDraw
+    } else if (cur.left === contestant) {
       acc.diff += cur.leftScore - cur.rightScore
       if (cur.leftScore > cur.rightScore)
-        acc.wins++
+        acc.points += settings.pointsPerWin
     } else {
       acc.diff += cur.rightScore - cur.leftScore
       if (cur.rightScore > cur.leftScore)
-        acc.wins++
+        acc.points += settings.pointsPerWin
     }
     return acc
-  }, {id: contestant, wins: 0, diff: 0})
+  }, {id: contestant, points: 0, diff: 0})
 }
 export const sortInfos = (a: App.GroupMemberInfo, b: App.GroupMemberInfo) => {
-  const d = b.wins - a.wins
+  const d = b.points - a.points
   if (d !== 0)
     return d
   return b.diff - a.diff
@@ -168,7 +170,7 @@ const groupAndSortMembers = (infos: App.GroupMemberInfo[]) => {
   type Hash = number
   const maxDiff = infos.reduce((max, {diff}) => Math.max(max, diff), 0)
   const winMultiplier = Math.pow(10, Math.floor(Math.log10(maxDiff)) + 1)
-  const hasher = ({diff, wins}: App.GroupMemberInfo): Hash => wins * winMultiplier + diff
+  const hasher = ({diff, points}: App.GroupMemberInfo): Hash => points * winMultiplier + diff
 
   const grouped = infos.reduce<Map<Hash, App.GroupMemberInfo[]>>((groups, info) => {
     const hash = hasher(info)

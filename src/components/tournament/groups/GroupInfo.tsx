@@ -53,10 +53,10 @@ const GroupInfo = ({id, onSelect}: GroupInfoProps) => {
 
   const updateInfo = (id: App.Id) => {
     const ms = getMatchesOf(group, id)
-    const {wins, diff} = calcInfo(ms, id)
+    const {points, diff} = calcInfo(ms, id)
     setInfos(cur => {
       const info = cur.find(info => info.id === id)!
-      info.wins = wins
+      info.points = points
       info.diff = diff
       return [...cur]
     })
@@ -68,13 +68,13 @@ const GroupInfo = ({id, onSelect}: GroupInfoProps) => {
     <div className="font-bold">{group.name}</div>
     <div className="grid grid-cols-[1fr_auto_auto] w-full gap-2 ">
         <span className="italic text-left">Teilnehmer</span>
-        <span className="italic text-right">Siege</span>
+        <span className="italic text-right">Punkte</span>
         <span className="italic text-right">Diff</span>
-        {infos.map(({id, diff, wins}) => {
+        {infos.map(({id, diff, points}) => {
           const {name} = contestants[id]
           return <div key={id} className={`contents ${isWinner(winners, id) ? 'text-win' : ''} ${isLuckyLoser(id, luckyLoser, phase) ? 'text-draw' : ''}`}>
             <span className="text-left text-overflow" title={name}>{name}</span>
-            <span className="text-right">{wins}</span>
+            <span className="text-right">{points}</span>
             <span className="text-right">{diff}</span>
           </div>
         })}

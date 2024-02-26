@@ -28,7 +28,9 @@ declare namespace App {
     luckyLoser: boolean,
     groups: boolean,
     winnerPerGroup: number,
-    defaultTime: number
+    defaultTime: number,
+    pointsPerWin: number,
+    pointsPerDraw: number
   }
   
   declare type Id = string
@@ -93,7 +95,7 @@ declare namespace App {
 
   declare interface GroupMemberInfo {
     id: Id,
-    wins: number,
+    points: number,
     diff: number
   }
 
