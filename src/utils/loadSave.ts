@@ -86,6 +86,8 @@ export const handleLoadFile = (callback: () => void) => async (event: any, filep
   settings.name = tnm.settings.name
   settings.winnerPerGroup = tnm.settings.winnerPerGroup
   settings.groups = tnm.settings.groups
+  settings.pointsPerWin = tnm.settings.pointsPerWin
+  settings.pointsPerDraw = tnm.settings.pointsPerDraw
 
   state.phase = tnm.state.phase
   state.luckyLoser = tnm.state.luckyLoser
@@ -157,8 +159,8 @@ const collectBrackets = (root: App.Bracket, brackets: App.Brackets): App.Bracket
 }
 
 
-const parseVersion = (version: string): [major: number, minor: number, patch: number] => {
-  const [major, minor, patch] = version.split('.')
+const parseVersion = (version?: string): [major: number, minor: number, patch: number] => {
+  const [major, minor, patch] = version == undefined ? ['1', '0', '0'] : version.split('.')
   return [parseInt(major), parseInt(minor), parseInt(patch)]
 }
 
