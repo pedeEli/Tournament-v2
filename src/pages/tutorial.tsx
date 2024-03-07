@@ -1,12 +1,22 @@
 import {useRouter} from '@/components/Router'
+import Layout from '@/pages/_layout'
+import Contestants from '@/pages/contestants'
 
 const Tutorial = () => {
   const router = useRouter()
 
-  console.log(router.route)
+  const step = parseInt(router.route.searchParams.get('step') ?? '-1')
+  console.log(step)
+  if (isNaN(step) || step < 0) {
+    router.goto('/tutorial?step=0')
+    return <div>Ungültiger Schritt: {step}</div>
+  }
+
 
   return <div>
-    {router.route.searchParams.get('step')}
+    <Layout>
+      <Contestants/>
+    </Layout>
   </div>
 }
 

@@ -16,11 +16,6 @@ const Index = () => {
     return () => {ipcRenderer.off('loadfile', handleLoadFile2)}
   })
 
-  const handleNew = () => {
-    clearTournament()
-    router.goto('/contestants')
-  }
-
   if (process.env['OPENED_FILE'] !== '.') {
     handleLoadFile2(undefined, process.env['OPENED_FILE'])
   }
@@ -34,11 +29,11 @@ const Index = () => {
           <a href={`${state.page}`} className="btn btn-raised w-full">Weiter</a>
           <div className="p-2"/>
         </>}
-        <button className="btn btn-raised w-full" onClick={handleNew}>Neu</button>
+        <a href="/contestants" className="btn btn-raised w-full" onClick={clearTournament}>Neu</a>
         <div className="p-2"/>
         <button className="btn btn-raised w-full" onClick={load}>Laden</button>
         <div className="p-2"/>
-        <a href="/tutorial?step=2" className="btn btn-raised w-full">Tutorial</a>
+        <a href="/tutorial" onClick={clearTournament} className="btn btn-raised w-full">Tutorial</a>
       </div>
     </main>
   )

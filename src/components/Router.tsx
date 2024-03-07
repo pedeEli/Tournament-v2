@@ -12,11 +12,11 @@ interface RouterProps {
 }
 
 interface RouterContext {
-  goto: (url: string) => void,
+  goto: (url: string) => Promise<void>,
   route: URL
 }
 
-const RouterContext = createContext<RouterContext>({goto: () => {}, route: new URL(location.href)})
+const RouterContext = createContext<RouterContext>({goto: async () => {}, route: new URL(location.href)})
 export const useRouter = () => useContext(RouterContext)
 
 const Router = ({routes}: RouterProps) => {
@@ -29,14 +29,20 @@ const Router = ({routes}: RouterProps) => {
   }, [])
 
 
-  const handleClick = (event: MouseEvent) => {
+  const handleClick = async (event: MouseEvent) => {
     if (!(event.target instanceof HTMLAnchorElement))
       return
     
     event.preventDefault()
-    const {href} = event.target
-    history.pushState(undefined, '', href)
-    setActiveRoute(new URL(href))
+    await goto(event.target.href)
+  }
+
+  const goto = async (url: string | URL) => {
+    if (typeof url === 'string') {
+      url = new URL(url, activeRoute.origin)
+    }
+    history.pushState(undefined, '', url.href)
+    setActiveRoute(url)
   }
 
   const route = routes.find(({route}) => route.test(activeRoute.pathname))
@@ -47,7 +53,7 @@ const Router = ({routes}: RouterProps) => {
   const Page = route.components[0]
 
   return <RouterContext.Provider value={{
-    goto: url => setActiveRoute(new URL(url, activeRoute.origin)),
+    goto,
     route: activeRoute
   }}>{
     getLayouts(route).reduce((acc, Com) => {
