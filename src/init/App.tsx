@@ -1,6 +1,7 @@
 import Router from '@/components/Router'
 
 import Index from '@/pages/index'
+import Tutorial from '@/pages/tutorial'
 import Contestants from '@/pages/contestants'
 import Groups from '@/pages/groups'
 import OuterLayout from '@/pages/_layout'
@@ -30,6 +31,10 @@ const App: React.FC = () => {
             Groups,
             OuterLayout
           ]
+        },
+        {
+          route: /^\/tutorial$/,
+          components: [Tutorial]
         },
         {
           route: /^\/tournament\/groups$/,

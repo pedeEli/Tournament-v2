@@ -17,9 +17,9 @@ const Navbar = ({onMenu}: NavbarProps) => {
           settings.name = value
           return true
         }}/></li>
-      <li className="mx-6"><a href="#/contestants" className="outline-none">Teams</a></li>
-      <li className="mx-6"><a href="#/groups" className="outline-none">Gruppen</a></li>
-      <li className="mx-6"><a href={`#/tournament/${phase === 'brackets' || phase === 'done' || !groups ? 'brackets' : 'groups'}`} className="outline-none">Turnier</a></li>
+      <li className="mx-6"><a href="/contestants" className="outline-none">Teams</a></li>
+      <li className="mx-6"><a href="/groups" className="outline-none">Gruppen</a></li>
+      <li className="mx-6"><a href={`/tournament/${phase === 'brackets' || phase === 'done' || !groups ? 'brackets' : 'groups'}`} className="outline-none">Turnier</a></li>
       <li className="w-10 h-10 mx-6"><button onClick={onMenu} className="w-full h-full outline-none"><MenuSVG/></button></li>
     </ul>
   </nav>

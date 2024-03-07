@@ -30,6 +30,10 @@ const OuterLayout: Layout = ({children}) => {
   const [savePrompt, setSavePrompt] = useState<{action: () => void}>()
   const router = useRouter()
 
+  if (state.page !== router.route.pathname) {
+    state.page = router.route.pathname
+  }
+
   const handleLoadFile2 = handleLoadFile(() => setMenu(false))
   const handleKeyDown = (event: KeyboardEvent) => event.key === 'Escape' && setMenu(false)
 

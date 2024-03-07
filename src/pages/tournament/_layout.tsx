@@ -33,8 +33,8 @@ const InnerLayout: Layout = ({children}) => {
     <div className="grid grid-rows-[auto_auto_1fr] grid-cols-[1fr_auto] h-full p-4 gap-x-3">
       <h1 className="mb-4 col-span-2">Turnier</h1>
       <div className="flex gap-2 mb-2  col-span-2">
-        <a href="#/tournament/groups" className={`btn ${page.endsWith('groups') ? 'btn-raised' : ''}`}>Gruppen Phase</a>
-        <a href="#/tournament/brackets" className={`btn ${page.endsWith('brackets') ? 'btn-raised' : ''}`}>K.o Phase</a>
+        <a href="/tournament/groups" className={`btn ${page.endsWith('groups') ? 'btn-raised' : ''}`}>Gruppen Phase</a>
+        <a href="/tournament/brackets" className={`btn ${page.endsWith('brackets') ? 'btn-raised' : ''}`}>K.o Phase</a>
         <button onClick={terminate} disabled={!terminable && phase !== 'done'} className="btn">
           {phase === 'done' ? 'Gewinner anzeigen' : 'Turnier beenden'}
         </button>

@@ -31,12 +31,14 @@ const Index = () => {
       <div className="p-4"/>
       <div className="w-fit flex flex-col">
         {state.page !== '/' && <>
-          <a href={`#${state.page}`} className="btn btn-raised w-full">Weiter</a>
+          <a href={`${state.page}`} className="btn btn-raised w-full">Weiter</a>
           <div className="p-2"/>
         </>}
         <button className="btn btn-raised w-full" onClick={handleNew}>Neu</button>
         <div className="p-2"/>
         <button className="btn btn-raised w-full" onClick={load}>Laden</button>
+        <div className="p-2"/>
+        <a href="/tutorial?step=2" className="btn btn-raised w-full">Tutorial</a>
       </div>
     </main>
   )
