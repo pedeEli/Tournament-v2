@@ -1,5 +1,5 @@
 import {useRouter, Route} from '@/components/Router'
-import {useEffect, useState} from 'react'
+import {useEffect, useState, useMemo} from 'react'
 import {routes} from '@/init/App'
 
 
@@ -76,13 +76,15 @@ const Overlay = ({step, index}: OverlayProps) => {
     return () => observer.disconnect()
   }, [step])
 
+  const text = useMemo(() => <Text
+    box={box}
+    padding={padding}
+    step={step}
+    index={index}/>, [box])
+
   return <div className="fixed inset-0 pointer-events-none grid">
     <Highlight box={box} padding={padding}/>
-    <Text
-      box={box}
-      padding={padding}
-      step={step}
-      index={index}/>
+    {text}
   </div>
 }
 
@@ -119,7 +121,7 @@ type TextProps = {
 
 const Text = ({box, padding, step, index}: TextProps) => {
   const router = useRouter()
-  
+
   const forward = () => {
     if (index === steps.length - 1) {
       router.goto('/')
