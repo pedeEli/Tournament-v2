@@ -3,28 +3,74 @@ import {useEffect, useState, useMemo} from 'react'
 import {routes} from '@/init/App'
 
 
+type ActionContext = {
+  setRoute: (route: string) => void
+}
+
+type Action = {
+  type: 'listener',
+  target: string,
+  event: keyof HTMLElementEventMap,
+  fn: (ctx: ActionContext) => (event: Event) => void
+}
+
 type Step = {
   route: string,
   highlight?: string[],
   text: string,
   padding?: number,
-  position?: 'up' | 'left' | 'down' | 'right'
+  position?: 'up' | 'left' | 'down' | 'right',
+  actions?: Action[]
 }
 
 const steps: Step[] = [
   {
     route: '/contestants',
-    text: 'Wilkommen im Tutorial. Hier werden wir alles durch gehen was du über dies App wissen musst'
+    text: 'Wilkommen im Tutorial. Hier werden wir ein kleines Tunier simulieren, um zu verstehen wie alles funktioniert.'
   },
   {
     route: '/contestants',
     highlight: ['#settings-name'],
-    text: 'Doppel click um den Namen zu ändern'
+    text: `Als Erstes ändern wir den Namen unseres Tuniers. Dazu machst du einen Doppelklick auf den Turnier.
+      Um den Namen zu bestätigen drückst du Enter. Mit Escape kannst du auch abbrechen.
+      Auf diese Weise kannst du die meisten Infos in der App bearbeiten. Du erkennst ob man etwas bearbeiten kann daran,
+      dass sich dein Mauszeiger zu einer Hand verändert. Probier es während dem Tutorial einfach mal überall aus.`
   },
   {
     route: '/contestants',
     highlight: ['#new-contestant > *', '#list'],
-    text: 'Hier kannst du auswählen ob du ein ganzes team oder nur eine enzelne person hinzufüegen möchtest'
+    text: `Nun müssen wir Mitspieler hinzufügen. Die App unterscheidet zwischen Teams und Personen.
+      Sowohl Teams als auch Personen benötigen einen eindeutigen Namen.
+      Um ein Mitglied hinzu zufügen einfach auf das obere Plus oder Enter drücken.
+      Ein Team besteht immer aus zwei oder mehr Mitgliedern. Diese fügt man hinzu indem man erst auf
+      das Plus neben 'Team Mitglieder' drückt, einen Namen ein gibt und dann mit Enter bestatigt.
+      Probiers einfach mal ein wenig aus. Wie du siehst kannst du die Personen, Teams und Team
+      Mitglieder im Nachhinein nochmals bearbeiten.`
+  },
+  {
+    route: '/contestants',
+    text: `Als Nächstes wollen wir die Gruppen für unser Tunier erstellen.
+      Falls es noch nicht genug Mitspieler für eine sinnvolle Gruppenphase sind,
+      fügen wir noch ein paar hinzu.`
+  },
+  {
+    route: '/contestants',
+    highlight: ['#navbar-groups', '#navbar-contestants', '#navbar-tournament'],
+    text: `Hier kannst du zwischen den verschiedenen Seiten wechseln. Wir wollen zu den Gruppen.`,
+    actions: [
+      {
+        type: 'listener',
+        target: '#navbar-contestants, #navbar-groups, #navbar-tournament',
+        event: 'click',
+        fn: ctx => event => {
+          event.preventDefault()
+          event.stopPropagation()
+          if (event.target instanceof HTMLAnchorElement) {
+            ctx.setRoute(event.target.pathname)
+          }
+        }
+      }
+    ]
   }
 ]
 
@@ -35,16 +81,25 @@ const Tutorial = () => {
 
   const index = parseInt(router.route.searchParams.get('step') ?? '0')
   const step = steps[isNaN(index) ? 0 : index]
+  const [route, setRoute] = useState(routes.find(({route}) => route.test(step.route)))
 
-  const route = routes.find(({route}) => route.test(step.route))
+  useEffect(() => {
+    setRoute(routes.find(({route}) => route.test(step.route)))
+  }, [step])
+
+  const ctx: ActionContext = {
+    setRoute: r => setRoute(routes.find(({route}) => route.test(r)))
+  }
+  
   if (route == undefined) {
     return <div>Unbekannte Route: {step.route}</div>
   }
 
-  return <div>
+
+  return <>
     <Route {...route}/>
-    <Overlay step={step} index={index}/>
-  </div>
+    <Overlay step={step} index={index} ctx={ctx}/>
+  </>
 }
 
 export default Tutorial
@@ -52,10 +107,11 @@ export default Tutorial
 
 type OverlayProps = {
   step: Step,
-  index: number
+  index: number,
+  ctx: ActionContext
 }
 
-const Overlay = ({step, index}: OverlayProps) => {
+const Overlay = ({step, index, ctx}: OverlayProps) => {
   const [box, setBox] = useState<DOMRect | null>(null)
   const padding = step.padding ?? 10
 
@@ -79,6 +135,32 @@ const Overlay = ({step, index}: OverlayProps) => {
     setBox(getBoundingBox(elements))
 
     return () => observer.disconnect()
+  }, [step])
+
+  useEffect(() => {
+    const {actions} = step
+    if (actions == undefined || actions.length === 0) {
+      return
+    }
+
+    const cleanups: Array<() => void> = []
+    for (const action of actions) {
+      switch (action.type) {
+        case 'listener':
+          const elements = document.querySelectorAll(action.target)
+          const fn = action.fn(ctx)
+          for (const element of elements) {
+            element.addEventListener(action.event, fn)
+            cleanups.push(() => element.removeEventListener(action.event, fn))
+          }
+      }
+    }
+
+    return () => {
+      for (const cleanup of cleanups) {
+        cleanup()
+      }
+    }
   }, [step])
 
   const text = useMemo(() => <Text
