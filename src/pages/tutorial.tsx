@@ -1,7 +1,55 @@
 import {useRouter, Route} from '@/components/Router'
-import {useEffect, useState, useMemo} from 'react'
+import {useEffect, useState, useMemo, useRef} from 'react'
 import {routes} from '@/init/App'
+import {contestants} from '@/state/tournament'
+import {createId} from '@/utils/str'
 
+const contestantsPool: App.Contestant[] = [
+  {
+    id: '',
+    type: 'person',
+    name: 'Elias'
+  },
+  {
+    id: '',
+    type: 'team',
+    name: 'Dream Team',
+    members: ['Simon', 'Ruben']
+  },
+  {
+    id: '',
+    type: 'person',
+    name: 'Nicolas'
+  },
+  {
+    id: '',
+    type: 'team',
+    name: 'Sisters',
+    members: ['Sarah', 'Rebecca']
+  },
+  {
+    id: '',
+    type: 'person',
+    name: 'Rico'
+  },
+  {
+    id: '',
+    type: 'team',
+    name: 'Sieger',
+    members: ['Jakob', 'Jan']
+  },
+  {
+    id: '',
+    type: 'person',
+    name: 'Emma'
+  },
+  {
+    id: '',
+    type: 'team',
+    name: 'Beste Team',
+    members: ['Erik', 'Bennet']
+  }
+]
 
 type ActionContext = {
   setRoute: (route: string) => void
@@ -12,6 +60,9 @@ type Action = {
   target: string,
   event: keyof HTMLElementEventMap,
   fn: (ctx: ActionContext) => (event: Event) => void
+} | {
+  type: 'forward',
+  fn: (ctx: ActionContext) => void
 }
 
 type Step = {
@@ -51,7 +102,34 @@ const steps: Step[] = [
     route: '/contestants',
     text: `Als Nächstes wollen wir die Gruppen für unser Tunier erstellen.
       Falls es noch nicht genug Mitspieler für eine sinnvolle Gruppenphase sind,
-      fügen wir noch ein paar hinzu.`
+      fügen wir noch ein paar hinzu.`,
+    actions: [
+      {
+        type: 'forward',
+        fn: () => {
+          const ids = new Set(Object.keys(contestants))
+          
+          const conts = Object.values(contestants)
+          let i = 0
+          while (conts.length < 8) {
+            const contsFromPool = contestantsPool[i]
+            if (conts.find(c => c.name === contsFromPool.name)) {
+              i++
+              continue
+            }
+            const id = createId(ids)
+            ids.add(id)
+            contestants[id] = {...contsFromPool, id}
+            conts.push(contestants[id])
+          }
+
+          while (conts.length > 8) {
+            const cont = conts.pop()!
+            delete contestants[cont.id]
+          }
+        }
+      }
+    ]
   },
   {
     route: '/contestants',
@@ -112,8 +190,10 @@ type OverlayProps = {
 }
 
 const Overlay = ({step, index, ctx}: OverlayProps) => {
+  const router = useRouter()
   const [box, setBox] = useState<DOMRect | null>(null)
   const padding = step.padding ?? 10
+  const forwardActions = useRef(new Set<(ctx: ActionContext) => void>())
 
   useEffect(() => {
     if (step.highlight == undefined || step.highlight.length === 0) {
@@ -153,6 +233,10 @@ const Overlay = ({step, index, ctx}: OverlayProps) => {
             element.addEventListener(action.event, fn)
             cleanups.push(() => element.removeEventListener(action.event, fn))
           }
+          break;
+        case 'forward':
+          forwardActions.current.add(action.fn)
+          break;
       }
     }
 
@@ -160,14 +244,35 @@ const Overlay = ({step, index, ctx}: OverlayProps) => {
       for (const cleanup of cleanups) {
         cleanup()
       }
+      forwardActions.current.clear()
     }
   }, [step])
+
+  const forward = () => {
+    for (const action of forwardActions.current) {
+      action(ctx)
+    }
+    if (index === steps.length - 1) {
+      router.goto('/')
+    } else {
+      router.goto(`/tutorial?step=${index + 1}`)
+    }
+  }
+  const back = () => {
+    if (index === 0) {
+      router.goto('/')
+    } else {
+      router.goto(`/tutorial?step=${index - 1}`)
+    }
+  }
 
   const text = useMemo(() => <Text
     box={box}
     padding={padding}
     step={step}
-    index={index}/>, [box])
+    index={index}
+    forward={forward}
+    back={back}/>, [box])
 
   return <div className="fixed inset-0 pointer-events-none grid">
     <Highlight box={box} padding={padding}/>
@@ -224,27 +329,12 @@ type TextProps = {
   box: DOMRect | null,
   padding: number,
   step: Step,
-  index: number
+  index: number,
+  back: () => void,
+  forward: () => void
 }
 
-const Text = ({box, padding, step, index}: TextProps) => {
-  const router = useRouter()
-
-  const forward = () => {
-    if (index === steps.length - 1) {
-      router.goto('/')
-    } else {
-      router.goto(`/tutorial?step=${index + 1}`)
-    }
-  }
-  const back = () => {
-    if (index === 0) {
-      router.goto('/')
-    } else {
-      router.goto(`/tutorial?step=${index - 1}`)
-    }
-  }
-
+const Text = ({box, padding, step, back, forward, index}: TextProps) => {
   return <div {...textProps(box, padding)}>
     <div>{step.text}</div>
     <div className="p-1"/>
