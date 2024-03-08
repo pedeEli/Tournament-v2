@@ -108,12 +108,12 @@ const NewContestant = () => {
     inputRef.current!.value = ''
   }
 
-  return <>
+  return <div id="new-contestant" className="contents">
     <h2>Teams oder einzelne Personen hinzufügen</h2>
     <div className="p-1"/>
     <div className="flex items-center gap-2">
-      <button id="select-team" className={`btn ${ac.addingType === 'team' ? 'btn-raised' : ''}`} onClick={() => addingContestant.addingType = 'team'}>Team</button>
-      <button id="select-person" className={`btn ${ac.addingType === 'person' ? 'btn-raised' : ''}`} onClick={() => addingContestant.addingType = 'person'}>Person</button>
+      <button className={`btn ${ac.addingType === 'team' ? 'btn-raised' : ''}`} onClick={() => addingContestant.addingType = 'team'}>Team</button>
+      <button className={`btn ${ac.addingType === 'person' ? 'btn-raised' : ''}`} onClick={() => addingContestant.addingType = 'person'}>Person</button>
       <button className="btn btn-svg" disabled={state.phase !== 'configure'} onClick={addContestant}><AddSVG/></button>
     </div>
     <div className="p-1"/>
@@ -128,18 +128,17 @@ const NewContestant = () => {
       />
     </div>
     <div className="p-1"/>
-    {ac.addingType === 'team' &&
-      <div>
-        <EditableList
-          disabled={state.phase !== 'configure'}
-          heading="Team Mitglieder"
-          onAdd={handleMemberAdd}
-          onItemDelete={handleMemberDelete}
-          list={ac.members}
-          onRename={handleMemberRename}
-        />
-      </div>}
-  </>
+    <div hidden={ac.addingType !== 'team'}>
+      <EditableList
+        disabled={state.phase !== 'configure'}
+        heading="Team Mitglieder"
+        onAdd={handleMemberAdd}
+        onItemDelete={handleMemberDelete}
+        list={ac.members}
+        onRename={handleMemberRename}
+      />
+    </div>
+  </div>
 }
 
 export default NewContestant

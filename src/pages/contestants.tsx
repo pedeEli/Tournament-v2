@@ -45,7 +45,7 @@ const Contestants = () => {
     <div className="p-2"/>
     <NewContestant/>
     <div className="p-2"/>
-    <div className="flex gap-4">
+    <div id="list" className="flex gap-4">
       <PersonsList persons={persons} saveName={saveName} loadName={loadName} deleteName={deleteName}/>
       <TeamsList teams={teams} saveName={saveName} loadName={loadName} deleteName={deleteName}/>
     </div>

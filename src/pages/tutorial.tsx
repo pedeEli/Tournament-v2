@@ -18,12 +18,12 @@ const steps: Step[] = [
   },
   {
     route: '/contestants',
-    highlight: ['settings-name'],
+    highlight: ['#settings-name'],
     text: 'Doppel click um den Namen zu ändern'
   },
   {
     route: '/contestants',
-    highlight: ['select-team', 'select-person'],
+    highlight: ['#new-contestant > *', '#list'],
     text: 'Hier kannst du auswählen ob du ein ganzes team oder nur eine enzelne person hinzufüegen möchtest'
   }
 ]
@@ -65,14 +65,13 @@ const Overlay = ({step, index}: OverlayProps) => {
       return
     }
 
-    const elements: HTMLElement[] = []
+    const elements: Element[] = []
     const observer = new ResizeObserver(() => {
       setBox(getBoundingBox(elements))
     })
 
-    for (const id of step.highlight) {
-      const element = document.getElementById(id)
-      if (element != null) {
+    for (const selector of step.highlight) {
+      for (const element of document.querySelectorAll(selector)) {
         elements.push(element)
         observer.observe(element)
       }
@@ -94,7 +93,7 @@ const Overlay = ({step, index}: OverlayProps) => {
   </div>
 }
 
-const getBoundingBox = (elements: HTMLElement[]): DOMRect => {
+const getBoundingBox = (elements: Element[]): DOMRect => {
   let left = Number.MAX_VALUE
   let top = Number.MAX_VALUE
   let right = 0
@@ -102,6 +101,9 @@ const getBoundingBox = (elements: HTMLElement[]): DOMRect => {
 
   for (const element of elements) {
     const box = element.getBoundingClientRect()
+    if (box.width === 0 && box.height === 0) {
+      continue
+    }
 
     left = Math.min(left, box.x)
     top = Math.min(top, box.y)
