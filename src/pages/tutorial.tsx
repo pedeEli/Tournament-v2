@@ -119,12 +119,20 @@ type TextProps = {
 
 const Text = ({box, padding, step, index}: TextProps) => {
   const router = useRouter()
-
+  
   const forward = () => {
-    router.goto(`/tutorial?step=${index + 1}`)
+    if (index === steps.length - 1) {
+      router.goto('/')
+    } else {
+      router.goto(`/tutorial?step=${index + 1}`)
+    }
   }
   const back = () => {
-    router.goto(`/tutorial?step=${index - 1}`)
+    if (index === 0) {
+      router.goto('/')
+    } else {
+      router.goto(`/tutorial?step=${index - 1}`)
+    }
   }
 
   return <div {...textProps(box, padding)}>
@@ -132,7 +140,9 @@ const Text = ({box, padding, step, index}: TextProps) => {
     <div className="p-1"/>
     <div className="flex gap-2">
       <button className="btn btn-raised" onClick={back}>Zurück</button>
-      <button className="btn btn-raised" onClick={forward}>Weiter</button>
+      <button className="btn btn-raised" onClick={forward}>
+        {index === steps.length - 1 ? 'Beenden' : 'Weiter'}
+      </button>
     </div>
   </div>
 }
