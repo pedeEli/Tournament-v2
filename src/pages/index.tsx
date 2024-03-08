@@ -33,7 +33,7 @@ const Index = () => {
         <div className="p-2"/>
         <button className="btn btn-raised w-full" onClick={load}>Laden</button>
         <div className="p-2"/>
-        <a href="/tutorial" onClick={clearTournament} className="btn btn-raised w-full">Tutorial</a>
+        <a href="/tutorial?step=0" onClick={clearTournament} className="btn btn-raised w-full">Tutorial</a>
       </div>
     </main>
   )

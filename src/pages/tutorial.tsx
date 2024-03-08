@@ -33,12 +33,8 @@ const steps: Step[] = [
 const Tutorial = () => {
   const router = useRouter()
 
-  const index = parseInt(router.route.searchParams.get('step') ?? '-1')
-  const step = steps[isNaN(index) ? -1 : index]
-  if (step == undefined) {
-    router.goto('/tutorial?step=0')
-    return <div>Ungültiger Schritt: {index}</div>
-  }
+  const index = parseInt(router.route.searchParams.get('step') ?? '0')
+  const step = steps[isNaN(index) ? 0 : index]
 
   const route = routes.find(({route}) => route.test(step.route))
   if (route == undefined) {

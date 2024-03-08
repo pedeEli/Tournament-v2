@@ -12,7 +12,7 @@ export interface RouterProps {
 }
 
 interface RouterContext {
-  goto: (url: string) => Promise<void>,
+  goto: (url: string) => void,
   route: URL
 }
 
@@ -29,12 +29,12 @@ const Router = ({routes}: RouterProps) => {
   }, [])
 
 
-  const handleClick = async (event: MouseEvent) => {
+  const handleClick = (event: MouseEvent) => {
     if (!(event.target instanceof HTMLAnchorElement))
       return
     
     event.preventDefault()
-    await goto(event.target.href)
+    goto(event.target.href)
   }
 
   const goto = async (url: string | URL) => {
