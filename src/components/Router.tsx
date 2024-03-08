@@ -1,7 +1,7 @@
 import React, {useEffect, useState, createContext, useContext} from 'react'
 import NotFound from '@/pages/_notFound'
 
-interface RouterProps {
+export interface RouterProps {
   routes: Array<{
     route: RegExp,
     components: [
@@ -49,27 +49,21 @@ const Router = ({routes}: RouterProps) => {
 
   if (!route)
     return <NotFound/>
-
-  const Page = route.components[0]
-
+  
   return <RouterContext.Provider value={{
     goto,
     route: activeRoute
-  }}>{
-    getLayouts(route).reduce((acc, Com) => {
-      return <Com>
-        {acc}
-      </Com>
-    }, <Page/>)
-  }</RouterContext.Provider>
+  }}><Route {...route}/></RouterContext.Provider>
 }
 
 export default Router
 
-const getLayouts = (route: RouterProps['routes'][number]) => {
-  return route.components.slice(1) as unknown as Array<Layout>
+export const Route = (props: RouterProps['routes'][number]) => {
+  const [Page, ...layouts] = props.components
+  return layouts.reduce((acc, Com) => {
+    return <Com>{acc}</Com>
+  }, <Page/>)
 }
-
 
 export type Layout = (props: {
   children: React.ReactNode

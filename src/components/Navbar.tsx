@@ -13,7 +13,7 @@ const Navbar = ({onMenu}: NavbarProps) => {
 
   return <nav className="h-full flex items-center text-2xl bg-primary">
     <ul className="contents">
-        <li className="mx-6 text-[2.5rem] mr-auto"><EditableText disabled={phase === 'done'} load={() => settings.name} save={value => {
+        <li id="settings-name" className="mx-6 text-[2.5rem] mr-auto"><EditableText disabled={phase === 'done'} load={() => settings.name} save={value => {
           settings.name = value
           return true
         }}/></li>
