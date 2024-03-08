@@ -5,7 +5,7 @@ import {routes} from '@/init/App'
 
 type Step = {
   route: string,
-  highlight?: string,
+  highlight?: string[],
   text: string,
   padding?: number,
   position?: 'up' | 'left' | 'down' | 'right'
@@ -18,12 +18,12 @@ const steps: Step[] = [
   },
   {
     route: '/contestants',
-    highlight: 'settings-name',
+    highlight: ['settings-name'],
     text: 'Doppel click um den Namen zu ändern'
   },
   {
     route: '/contestants',
-    highlight: 'adding-type',
+    highlight: ['select-team', 'select-person'],
     text: 'Hier kannst du auswählen ob du ein ganzes team oder nur eine enzelne person hinzufüegen möchtest'
   }
 ]
@@ -60,19 +60,25 @@ const Overlay = ({step, index}: OverlayProps) => {
   const padding = step.padding ?? 10
 
   useEffect(() => {
-    const element = document.getElementById(step.highlight ?? '')
-    if (element == null) {
+    if (step.highlight == undefined || step.highlight.length === 0) {
       setBox(null)
       return
     }
 
-    setBox(element.getBoundingClientRect())
-    
-    const observer = new ResizeObserver(entries => {
-      const entry = entries[0]
-      setBox(entry.target.getBoundingClientRect())
+    const elements: HTMLElement[] = []
+    const observer = new ResizeObserver(() => {
+      setBox(getBoundingBox(elements))
     })
-    observer.observe(element)
+
+    for (const id of step.highlight) {
+      const element = document.getElementById(id)
+      if (element != null) {
+        elements.push(element)
+        observer.observe(element)
+      }
+    }
+    setBox(getBoundingBox(elements))
+
     return () => observer.disconnect()
   }, [step])
 
@@ -86,6 +92,24 @@ const Overlay = ({step, index}: OverlayProps) => {
     <Highlight box={box} padding={padding}/>
     {text}
   </div>
+}
+
+const getBoundingBox = (elements: HTMLElement[]): DOMRect => {
+  let left = Number.MAX_VALUE
+  let top = Number.MAX_VALUE
+  let right = 0
+  let bottom = 0
+
+  for (const element of elements) {
+    const box = element.getBoundingClientRect()
+
+    left = Math.min(left, box.x)
+    top = Math.min(top, box.y)
+    right = Math.max(right, box.x + box.width)
+    bottom = Math.max(bottom, box.y + box.height)
+  }
+
+  return new DOMRect(left, top, right - left, bottom - top)
 }
 
 

@@ -111,9 +111,9 @@ const NewContestant = () => {
   return <>
     <h2>Teams oder einzelne Personen hinzufügen</h2>
     <div className="p-1"/>
-    <div id="adding-type" className="flex items-center gap-2">
-      <button className={`btn ${ac.addingType === 'team' ? 'btn-raised' : ''}`} onClick={() => addingContestant.addingType = 'team'}>Team</button>
-      <button className={`btn ${ac.addingType === 'person' ? 'btn-raised' : ''}`} onClick={() => addingContestant.addingType = 'person'}>Person</button>
+    <div className="flex items-center gap-2">
+      <button id="select-team" className={`btn ${ac.addingType === 'team' ? 'btn-raised' : ''}`} onClick={() => addingContestant.addingType = 'team'}>Team</button>
+      <button id="select-person" className={`btn ${ac.addingType === 'person' ? 'btn-raised' : ''}`} onClick={() => addingContestant.addingType = 'person'}>Person</button>
       <button className="btn btn-svg" disabled={state.phase !== 'configure'} onClick={addContestant}><AddSVG/></button>
     </div>
     <div className="p-1"/>
