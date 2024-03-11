@@ -1,4 +1,4 @@
-import {useRouter, Route} from '@/components/Router'
+import {useRouter, Route, type RouterProps} from '@/components/Router'
 import {useEffect, useState, useMemo, useRef} from 'react'
 import {routes} from '@/init/App'
 import {contestants} from '@/state/tournament'
@@ -149,6 +149,11 @@ const steps: Step[] = [
         }
       }
     ]
+  },
+  {
+    route: '/groups',
+    highlight: ['#settings-group'],
+    text: 'test'
   }
 ]
 
@@ -160,6 +165,8 @@ const Tutorial = () => {
   const index = parseInt(router.route.searchParams.get('step') ?? '0')
   const step = steps[isNaN(index) ? 0 : index]
   const [route, setRoute] = useState(routes.find(({route}) => route.test(step.route)))
+  const [box, setBox] = useState<DOMRect | null>(null)
+  const forwardActions = useRef(new Set<(ctx: ActionContext) => void>())
 
   useEffect(() => {
     setRoute(routes.find(({route}) => route.test(step.route)))
@@ -168,32 +175,6 @@ const Tutorial = () => {
   const ctx: ActionContext = {
     setRoute: r => setRoute(routes.find(({route}) => route.test(r)))
   }
-  
-  if (route == undefined) {
-    return <div>Unbekannte Route: {step.route}</div>
-  }
-
-
-  return <>
-    <Route {...route}/>
-    <Overlay step={step} index={index} ctx={ctx}/>
-  </>
-}
-
-export default Tutorial
-
-
-type OverlayProps = {
-  step: Step,
-  index: number,
-  ctx: ActionContext
-}
-
-const Overlay = ({step, index, ctx}: OverlayProps) => {
-  const router = useRouter()
-  const [box, setBox] = useState<DOMRect | null>(null)
-  const padding = step.padding ?? 10
-  const forwardActions = useRef(new Set<(ctx: ActionContext) => void>())
 
   useEffect(() => {
     if (step.highlight == undefined || step.highlight.length === 0) {
@@ -215,8 +196,9 @@ const Overlay = ({step, index, ctx}: OverlayProps) => {
     setBox(getBoundingBox(elements))
 
     return () => observer.disconnect()
-  }, [step])
+  }, [step, route])
 
+  
   useEffect(() => {
     const {actions} = step
     if (actions == undefined || actions.length === 0) {
@@ -258,6 +240,7 @@ const Overlay = ({step, index, ctx}: OverlayProps) => {
       router.goto(`/tutorial?step=${index + 1}`)
     }
   }
+
   const back = () => {
     if (index === 0) {
       router.goto('/')
@@ -265,17 +248,38 @@ const Overlay = ({step, index, ctx}: OverlayProps) => {
       router.goto(`/tutorial?step=${index - 1}`)
     }
   }
+  
+  if (route == undefined) {
+    return <div>Unbekannte Route: {step.route}</div>
+  }
 
-  const text = useMemo(() => <Text
-    box={box}
-    padding={padding}
-    step={step}
-    index={index}
-    forward={forward}
-    back={back}/>, [box])
+
+  return <>
+    <Route {...route}/>
+    <Overlay {...{step, index, box, forward, back}}/>
+  </>
+}
+
+export default Tutorial
+
+
+type OverlayProps = {
+  step: Step,
+  index: number,
+  box: DOMRect | null,
+  back: () => void,
+  forward: () => void
+}
+
+const Overlay = ({step, index, box, forward, back}: OverlayProps) => {
+  const padding = step.padding ?? 10
+
+  const text = useMemo(() => {
+    return <Text {...{box, padding, step, index, forward, back}}/>
+  }, [box])
 
   return <div className="fixed inset-0 pointer-events-none grid">
-    <Highlight box={box} padding={padding}/>
+    <Highlight {...{box, padding}}/>
     {text}
   </div>
 }

@@ -17,7 +17,7 @@ const Groups = () => {
 
   return <div className="flex flex-col items-center">
     <div className="p-2"/>
-    <h1 className="flex gap-4 items-center">
+    <h1 id="settings-group" className="flex gap-4 items-center">
       Gruppen
       <span className="text-lg">
         <Checkbox disabled={state.phase !== 'configure'} defaultChecked={settings.groups} onInput={setGroups}/>
