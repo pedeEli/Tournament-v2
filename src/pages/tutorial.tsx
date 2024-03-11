@@ -67,7 +67,7 @@ type Action = {
 
 type Step = {
   route: string,
-  highlight?: string[],
+  highlight?: string,
   text: string,
   padding?: number,
   position?: 'up' | 'left' | 'down' | 'right',
@@ -81,7 +81,7 @@ const steps: Step[] = [
   },
   {
     route: '/contestants',
-    highlight: ['#settings-name'],
+    highlight: '#settings-name',
     text: `Als Erstes ändern wir den Namen unseres Tuniers. Dazu machst du einen Doppelklick auf den Turnier.
       Um den Namen zu bestätigen drückst du Enter. Mit Escape kannst du auch abbrechen.
       Auf diese Weise kannst du die meisten Infos in der App bearbeiten. Du erkennst ob man etwas bearbeiten kann daran,
@@ -89,7 +89,7 @@ const steps: Step[] = [
   },
   {
     route: '/contestants',
-    highlight: ['#new-contestant > *', '#list'],
+    highlight: '#new-contestant > *, #list',
     text: `Nun müssen wir Mitspieler hinzufügen. Die App unterscheidet zwischen Teams und Personen.
       Sowohl Teams als auch Personen benötigen einen eindeutigen Namen.
       Um ein Mitglied hinzu zufügen einfach auf das obere Plus oder Enter drücken.
@@ -133,7 +133,7 @@ const steps: Step[] = [
   },
   {
     route: '/contestants',
-    highlight: ['#navbar-groups', '#navbar-contestants', '#navbar-tournament'],
+    highlight: '#navbar-groups, #navbar-contestants, #navbar-tournament',
     text: `Hier kannst du zwischen den verschiedenen Seiten wechseln. Wir wollen zu den Gruppen.`,
     actions: [
       {
@@ -152,8 +152,24 @@ const steps: Step[] = [
   },
   {
     route: '/groups',
-    highlight: ['#settings-group'],
-    text: 'test'
+    highlight: '#settings-group',
+    text: `Hier kann man Gruppen komplett deaktivieren.
+      Da wir mit Gruppen spielen wollen lassen wir den Hacken gesetzt.`,
+    actions: [
+      {
+        type: 'forward',
+        fn: () => {
+          const checkbox = document.querySelector('#settings-group input[type="checkbox"]') as HTMLInputElement
+          if (!checkbox.checked) {
+            checkbox.click()
+          }
+        }
+      }
+    ]
+  },
+  {
+    route: '/groups',
+    text: `temp`
   }
 ]
 
@@ -177,7 +193,7 @@ const Tutorial = () => {
   }
 
   useEffect(() => {
-    if (step.highlight == undefined || step.highlight.length === 0) {
+    if (step.highlight == undefined) {
       setBox(null)
       return
     }
@@ -187,11 +203,9 @@ const Tutorial = () => {
       setBox(getBoundingBox(elements))
     })
 
-    for (const selector of step.highlight) {
-      for (const element of document.querySelectorAll(selector)) {
-        elements.push(element)
-        observer.observe(element)
-      }
+    for (const element of document.querySelectorAll(step.highlight)) {
+      elements.push(element)
+      observer.observe(element)
     }
     setBox(getBoundingBox(elements))
 
