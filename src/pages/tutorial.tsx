@@ -1,4 +1,6 @@
-import {useRouter, Route, type RouterProps} from '@/components/Router'
+import type {ActionContext, Step} from '@/utils/tutorial'
+import {getBoundingBox, px, useApplyActions, listener, forward} from '@/utils/tutorial'
+import {useRouter, Route} from '@/components/Router'
 import {useEffect, useState, useMemo, useRef} from 'react'
 import {routes} from '@/init/App'
 import {contestants} from '@/state/tournament'
@@ -50,29 +52,6 @@ const contestantsPool: App.Contestant[] = [
     members: ['Erik', 'Bennet']
   }
 ]
-
-type ActionContext = {
-  setRoute: (route: string) => void
-}
-
-type Action = {
-  type: 'listener',
-  target: string,
-  event: keyof HTMLElementEventMap,
-  fn: (ctx: ActionContext) => (event: Event) => void
-} | {
-  type: 'forward',
-  fn: (ctx: ActionContext) => void
-}
-
-type Step = {
-  route: string,
-  highlight?: string,
-  text: string,
-  padding?: number,
-  position?: 'up' | 'left' | 'down' | 'right',
-  actions?: Action[]
-}
 
 const steps: Step[] = [
   {
@@ -136,18 +115,13 @@ const steps: Step[] = [
     highlight: '#navbar-groups, #navbar-contestants, #navbar-tournament',
     text: `Hier kannst du zwischen den verschiedenen Seiten wechseln. Wir wollen zu den Gruppen.`,
     actions: [
-      {
-        type: 'listener',
-        target: '#navbar-contestants, #navbar-groups, #navbar-tournament',
-        event: 'click',
-        fn: ctx => event => {
-          event.preventDefault()
-          event.stopPropagation()
-          if (event.target instanceof HTMLAnchorElement) {
-            ctx.setRoute(event.target.pathname)
-          }
+      listener('#navbar-contestants, #navbar-groups, #navbar-tournament', 'click', ctx => event => {
+        event.preventDefault()
+        event.stopPropagation()
+        if (event.target instanceof HTMLAnchorElement) {
+          ctx.setRoute(event.target.pathname)
         }
-      }
+      })
     ]
   },
   {
@@ -156,15 +130,7 @@ const steps: Step[] = [
     text: `Hier kann man Gruppen komplett deaktivieren.
       Da wir mit Gruppen spielen wollen lassen wir den Hacken gesetzt.`,
     actions: [
-      {
-        type: 'forward',
-        fn: () => {
-          const checkbox = document.querySelector('#settings-groups') as HTMLInputElement
-          if (!checkbox.checked) {
-            checkbox.click()
-          }
-        }
-      }
+      forward.setCheckbox('#settings-groups', true)
     ]
   },
   {
@@ -173,28 +139,27 @@ const steps: Step[] = [
     text: `Das sind allgemaine Einstellungen die auf jede Gruppe zutreffen.
       Wir lassen sie so.`,
     actions: [
-      {
-        type: 'forward',
-        fn: () => {
-          const winnerPerGroup = document.getElementById('winner-per-group') as HTMLInputElement
-          const pointsPerWin = document.getElementById('points-per-win') as HTMLInputElement
-          const pointsPerDraw = document.getElementById('points-per-draw') as HTMLInputElement
-          winnerPerGroup.value = '2'
-          pointsPerWin.value = '3'
-          pointsPerDraw.value = '1'
-          winnerPerGroup.dispatchEvent(new Event('input', {bubbles: true}))
-          pointsPerWin.dispatchEvent(new Event('input', {bubbles: true}))
-          pointsPerDraw.dispatchEvent(new Event('input', {bubbles: true}))
-        }
-      }
+      forward.setInput('#winner-per-group', '2'),
+      forward.setInput('#points-per-win', '3'),
+      forward.setInput('#points-per-draw', '1')
     ]
   },
   {
     route: '/groups',
-    text: `temp-2`
+    highlight: '#lucky-loser, [for="lucky-loser"]',
+    text: `Wenn man drei Gruppen hat mit jeweils zwei Siegern, kann Lucky Loser aktiviert werden,
+      um statt sechs acht Sieger zu haben. Das funktioniert so in dem die Besten Verlierer aus den
+      Gruppen ebenfalls in die K.o Phase kommen. Wir benötigen kein Lucky Loser,
+      da wir zwei Gruppen mit je vier Teilnehmern erstellen.`,
+    actions: [
+      forward.setCheckbox('#lucky-loser', false)
+    ]
+  },
+  {
+    route: '/groups',
+    text: `test`
   }
 ]
-
 
 
 const Tutorial = () => {
@@ -203,16 +168,15 @@ const Tutorial = () => {
   const index = parseInt(router.route.searchParams.get('step') ?? '0')
   const step = steps[isNaN(index) ? 0 : index]
   const [route, setRoute] = useState(routes.find(({route}) => route.test(step.route)))
+  const ctx: ActionContext = {
+    setRoute: r => setRoute(routes.find(({route}) => route.test(r)))
+  }
   const [box, setBox] = useState<DOMRect | null>(null)
-  const forwardActions = useRef(new Set<(ctx: ActionContext) => void>())
+  const {forwardActions} = useApplyActions(step, ctx)
 
   useEffect(() => {
     setRoute(routes.find(({route}) => route.test(step.route)))
   }, [step])
-
-  const ctx: ActionContext = {
-    setRoute: r => setRoute(routes.find(({route}) => route.test(r)))
-  }
 
   useEffect(() => {
     if (step.highlight == undefined) {
@@ -236,38 +200,6 @@ const Tutorial = () => {
 
     return () => observer.disconnect()
   }, [step, route])
-
-  
-  useEffect(() => {
-    const {actions} = step
-    if (actions == undefined || actions.length === 0) {
-      return
-    }
-
-    const cleanups: Array<() => void> = []
-    for (const action of actions) {
-      switch (action.type) {
-        case 'listener':
-          const elements = document.querySelectorAll(action.target)
-          const fn = action.fn(ctx)
-          for (const element of elements) {
-            element.addEventListener(action.event, fn)
-            cleanups.push(() => element.removeEventListener(action.event, fn))
-          }
-          break;
-        case 'forward':
-          forwardActions.current.add(action.fn)
-          break;
-      }
-    }
-
-    return () => {
-      for (const cleanup of cleanups) {
-        cleanup()
-      }
-      forwardActions.current.clear()
-    }
-  }, [step])
 
   const forward = () => {
     for (const action of forwardActions.current) {
@@ -321,27 +253,6 @@ const Overlay = ({step, index, box, forward, back}: OverlayProps) => {
     <Highlight {...{box, padding}}/>
     {text}
   </div>
-}
-
-const getBoundingBox = (elements: Element[]): DOMRect => {
-  let left = Number.MAX_VALUE
-  let top = Number.MAX_VALUE
-  let right = 0
-  let bottom = 0
-
-  for (const element of elements) {
-    const box = element.getBoundingClientRect()
-    if (box.width === 0 && box.height === 0) {
-      continue
-    }
-
-    left = Math.min(left, box.x)
-    top = Math.min(top, box.y)
-    right = Math.max(right, box.x + box.width)
-    bottom = Math.max(bottom, box.y + box.height)
-  }
-
-  return new DOMRect(left, top, right - left, bottom - top)
 }
 
 
@@ -407,5 +318,3 @@ const textProps = (box: DOMRect | null, padding: number): {className: string, st
     }
   }
 }
-
-const px = (n: number) => `${Math.max(n, 0)}px`
