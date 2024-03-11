@@ -18,9 +18,9 @@ const Groups = () => {
   return <div className="flex flex-col items-center">
     <div className="p-2"/>
     <h1 className="flex gap-4 items-center">
-      Gruppen
+      <label htmlFor="settings-groups">Gruppen</label>
       <span className="text-lg">
-        <Checkbox disabled={state.phase !== 'configure'} defaultChecked={settings.groups} onInput={setGroups}/>
+        <Checkbox id="settings-groups" disabled={state.phase !== 'configure'} defaultChecked={settings.groups} onInput={setGroups}/>
       </span>
     </h1>
     {groups && <>

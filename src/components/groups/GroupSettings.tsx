@@ -60,7 +60,7 @@ const GroupSettings = () => {
       <GroupSettingsValue/>
       {luckyLoserPossible && <>
         <label htmlFor="lucky-loser" className="justify-self-end">Lucky Loser</label>
-        <Checkbox disabled={state.phase !== 'configure'} onInput={e => settings.luckyLoser = e.currentTarget.checked} defaultChecked={settings.luckyLoser}/>
+        <Checkbox id="lucky-loser" disabled={state.phase !== 'configure'} onInput={e => settings.luckyLoser = e.currentTarget.checked} defaultChecked={settings.luckyLoser}/>
       </>}
       <button
         className="btn col-span-2 justify-self-center"

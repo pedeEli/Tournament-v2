@@ -2,15 +2,17 @@ import {useState} from 'react'
 import {CheckmarkSVG} from '@/components/svg'
 
 interface CheckboxProps {
+  id: string,
   defaultChecked?: boolean,
   disabled?: boolean,
   onInput: (event: React.FormEvent<HTMLInputElement>) => void
 }
 
-const Checkbox = ({defaultChecked = false, disabled = false, onInput}: CheckboxProps) => {
+const Checkbox = ({id, defaultChecked = false, disabled = false, onInput}: CheckboxProps) => {
   const [checked, setChecked] = useState(defaultChecked)
   return <div className="relative w-[2em] h-[2em]">
     <input
+      id={id}
       type="checkbox"
       className="peer appearance-none border border-white/30 rounded-md h-full w-full cursor-pointer checked:border-none checked:bg-primary
       disabled:cursor-default disabled:border-white/20 disabled:bg-gray-500"
