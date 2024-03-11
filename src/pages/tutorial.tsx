@@ -152,14 +152,14 @@ const steps: Step[] = [
   },
   {
     route: '/groups',
-    highlight: '#settings-group',
+    highlight: '#settings-groups, [for="settings-groups"]',
     text: `Hier kann man Gruppen komplett deaktivieren.
       Da wir mit Gruppen spielen wollen lassen wir den Hacken gesetzt.`,
     actions: [
       {
         type: 'forward',
         fn: () => {
-          const checkbox = document.querySelector('#settings-group input[type="checkbox"]') as HTMLInputElement
+          const checkbox = document.querySelector('#settings-groups') as HTMLInputElement
           if (!checkbox.checked) {
             checkbox.click()
           }
