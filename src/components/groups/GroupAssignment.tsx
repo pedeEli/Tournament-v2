@@ -1,8 +1,9 @@
 import {useSnapshot} from 'valtio'
-import {groups, contestants, state} from '@/state/tournament'
+import {groups, contestants, state, settings} from '@/state/tournament'
 import {AddSVG} from '@/components/svg'
 import {EditableList} from '@/components/input'
 import {createId} from '@/utils/str'
+import {groupsValidSettings, reassignMatchesAfterRandomize} from '@/utils/groups'
 import {useState} from 'react'
 import {
   deleteMatchesOfContestant,
@@ -37,7 +38,27 @@ const handleDeleteGroup = (id: App.Id) => () => {
   })
 }
 
+const assignRandomly = () => {
+  const groupsIds = Object.keys(groups)
+  if (!groupsIds.length) return
+  groupsIds.forEach(id => groups[id].members.splice(0))
+
+  let index = 0
+  const contestantsIds = Object.keys(contestants)
+  const unassigned = [...contestantsIds]
+  for (let i = 0; i < contestantsIds.length; i++) {
+      const randomIndex = Math.floor(Math.random() * unassigned.length)
+      const contestant = unassigned[randomIndex]
+      const group = groups[groupsIds[index]]
+      group.members.push(contestant)
+      unassigned.splice(randomIndex, 1)
+      index = (index + 1) % groupsIds.length
+  }
+  reassignMatchesAfterRandomize()
+}
+
 interface Drag {
+  hidden: boolean,
   id: App.Id,
   left: number,
   top: number
@@ -45,13 +66,20 @@ interface Drag {
 
 const GroupAssignment = () => {
   const grps = useSnapshot(groups)
-  const [drag, setDrag] = useState<Drag>()
+  const sttngs = useSnapshot(settings)
+  const [drag, setDrag] = useState<Drag>({
+    hidden: true,
+    id: '',
+    left: 0,
+    top: 0
+  })
 
   const assignedContestants = new Set(Object.values(grps).map(({members}) => members).flat())
   const unusedContestants = Object.values(contestants).filter(({id}) => !assignedContestants.has(id))
 
   const startDrag = (id: App.Id) => (event: React.MouseEvent<HTMLButtonElement>) => {
     setDrag({
+      hidden: false,
       id,
       top: event.clientY,
       left: event.clientX
@@ -59,61 +87,79 @@ const GroupAssignment = () => {
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', () => {
       document.removeEventListener('mousemove', handleMouseMove)
-      setDrag(undefined)
+      setDrag(cur => ({...cur, hidden: true}))
     }, {once: true})
   }
   const handleMouseMove = (event: MouseEvent) => {
-    setDrag(cur => ({...(cur as Drag), top: event.clientY, left: event.clientX}))
+    setDrag(cur => ({...cur, top: event.clientY, left: event.clientX}))
   }
   const handleDrop = (id: App.Id) => () => {
-    if (!drag)
+    if (drag.hidden)
       return
     const group = groups[id]
     group.members.push(drag.id)
     createAndAssignMatches(group)
   }
 
-  return <div className="flex gap-10">
-    <div>
-      <h2>Teams</h2>
-      <div className="p-2"/>
-      <div className="flex flex-col gap-2">
-        {unusedContestants.map(({name, id}) => {
-          return <button
-            key={id}
-            className="text-overflow max-w-[20ch] border border-white/30 rounded-md px-4 py-2 text-sm disabled:border-white/20 disabled:text-font/50"
-            disabled={state.phase !== 'configure'}
-            onMouseDown={startDrag(id)}
-            title={name}
-          >{name}</button>
-        })}
-      </div>
+  const groupsCount = Object.keys(grps).length
+  const validSettings = groupsValidSettings(grps, groupsCount, sttngs)
+
+  return <div id="group-assignment" className="contents">
+    <div className="p-1"/>
+    <button
+      className="btn col-span-2 justify-self-center"
+      disabled={state.phase !== 'configure' || groupsCount === 0}
+      onClick={assignRandomly}
+    >Zufällig verteilen</button>
+    <div hidden={validSettings.status !== 'invalid'}>
+      <div className="p-1"/>
+      <div className="card border-none bg-red-600">{validSettings.message ?? ''}</div>
     </div>
-    <div>
-      <h2 className="flex items-center gap-2">
-        Gruppen
-        <button className="btn btn-svg text-base" disabled={state.phase !== 'configure'} onClick={addGroup}><AddSVG/></button>
-      </h2>
-      <div className="p-2"/>
-      <div className="flex flex-wrap items-start max-w-2xl gap-2">
-        {Object.values(grps).map(({members, id, name}) => {
-          return <div key={id} onMouseUp={handleDrop(id)}>
-            <EditableList
-              heading={name}
-              itemMapper={(id) => contestants[id].name}
-              list={members}
-              onItemDelete={handleDeleteMember(id)}
-              onDelete={handleDeleteGroup(id)}
+    <div className="p-1"/>
+    <div className="flex gap-10">
+      <div>
+        <h2>Teams</h2>
+        <div className="p-2"/>
+        <div className="flex flex-col gap-2">
+          {unusedContestants.map(({name, id}) => {
+            return <button
+              key={id}
+              className="text-overflow max-w-[20ch] border border-white/30 rounded-md px-4 py-2 text-sm disabled:border-white/20 disabled:text-font/50"
               disabled={state.phase !== 'configure'}
-            />
-          </div>
-        })}
+              onMouseDown={startDrag(id)}
+              title={name}
+            >{name}</button>
+          })}
+        </div>
       </div>
-    </div>
-    {drag && <div
+      <div>
+        <h2 className="flex items-center gap-2">
+          Gruppen
+          <button className="btn btn-svg text-base" disabled={state.phase !== 'configure'} onClick={addGroup}><AddSVG/></button>
+        </h2>
+        <div className="p-2"/>
+        <div className="flex flex-wrap items-start max-w-2xl gap-2">
+          {Object.values(grps).map(({members, id, name}) => {
+            return <div key={id} onMouseUp={handleDrop(id)}>
+              <EditableList
+                heading={name}
+                itemMapper={(id) => contestants[id].name}
+                list={members}
+                onItemDelete={handleDeleteMember(id)}
+                onDelete={handleDeleteGroup(id)}
+                disabled={state.phase !== 'configure'}
+              />
+            </div>
+          })}
+        </div>
+      </div>
+      <div
         className="fixed bg-background border text-ellipsis overflow-hidden border-white/30 rounded-md px-4 py-2 text-sm max-w-[30ch]"
         style={{left: drag.left, top: drag.top}}
-      >{contestants[drag.id].name}</div>}
+        hidden={drag.hidden}>
+        {drag.hidden || contestants[drag.id].name}
+      </div>
+    </div>
   </div>
 }
 

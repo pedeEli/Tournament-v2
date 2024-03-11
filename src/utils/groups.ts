@@ -118,6 +118,7 @@ export const reassignMatchesAfterRandomize = () => {
 
 type ValidSettings = {
   status: 'valid'
+  message?: undefined
 } | {
   status: 'invalid',
   message: string

@@ -1,7 +1,7 @@
 import type {ActionContext, Step} from '@/utils/tutorial'
 import {getBoundingBox, px, useApplyActions, listener, forward} from '@/utils/tutorial'
 import {useRouter, Route} from '@/components/Router'
-import {useEffect, useState, useMemo, useRef} from 'react'
+import {useEffect, useState, useMemo} from 'react'
 import {routes} from '@/init/App'
 import {contestants} from '@/state/tournament'
 import {createId} from '@/utils/str'
@@ -157,6 +157,7 @@ const steps: Step[] = [
   },
   {
     route: '/groups',
+    highlight: '#group-assignment > *',
     text: `test`
   }
 ]

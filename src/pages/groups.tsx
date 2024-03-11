@@ -23,13 +23,13 @@ const Groups = () => {
         <Checkbox id="settings-groups" disabled={state.phase !== 'configure'} defaultChecked={settings.groups} onInput={setGroups}/>
       </span>
     </h1>
-    {groups && <>
+    <div className={groups ? 'contents' : 'hidden'}>
       <div className="p-2"/>
       <div>Es gibt insgesamt {Object.keys(contestants).length} Teilnehmer</div>
       <div className="p-1"/>
       <GroupSettings/>
       <GroupAssignment/>
-    </>}
+    </div>
   </div>
 }
 

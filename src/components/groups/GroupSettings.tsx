@@ -1,27 +1,8 @@
 import {useSnapshot} from 'valtio'
-import {settings, groups, state, contestants} from '@/state/tournament'
+import {settings, groups, state} from '@/state/tournament'
 import {Checkbox} from '@/components/input'
-import {reassignMatchesAfterRandomize, groupsValidSettings} from '@/utils/groups'
 import {log2} from '@/utils/math'
 
-const assignRandomly = () => {
-  const groupsIds = Object.keys(groups)
-  if (!groupsIds.length) return
-  groupsIds.forEach(id => groups[id].members.splice(0))
-
-  let index = 0
-  const contestantsIds = Object.keys(contestants)
-  const unassigned = [...contestantsIds]
-  for (let i = 0; i < contestantsIds.length; i++) {
-      const randomIndex = Math.floor(Math.random() * unassigned.length)
-      const contestant = unassigned[randomIndex]
-      const group = groups[groupsIds[index]]
-      group.members.push(contestant)
-      unassigned.splice(randomIndex, 1)
-      index = (index + 1) % groupsIds.length
-  }
-  reassignMatchesAfterRandomize()
-}
 
 const GroupSettingsValue = () => {
   if (state.phase === 'configure') {
@@ -53,26 +34,14 @@ const GroupSettings = () => {
   const winnersCount = sttngs.winnerPerGroup * groupsCount
   const luckyLoserPossible = 1 << log2(winnersCount) !== winnersCount
 
-  const validSettings = groupsValidSettings(grps, groupsCount, sttngs)
-
   return <>
     <div id="group-settings" className="grid grid-cols-[auto_auto] auto-rows-[2.5rem] gap-x-4 gap-y-2 items-center">
       <GroupSettingsValue/>
-      {luckyLoserPossible && <>
+      <div className={luckyLoserPossible ? 'contents' : 'hidden'}>
         <label htmlFor="lucky-loser" className="justify-self-end">Lucky Loser</label>
         <Checkbox id="lucky-loser" disabled={state.phase !== 'configure'} onInput={e => settings.luckyLoser = e.currentTarget.checked} defaultChecked={settings.luckyLoser}/>
-      </>}
-      <button
-        className="btn col-span-2 justify-self-center"
-        disabled={state.phase !== 'configure' || groupsCount === 0}
-        onClick={assignRandomly}
-      >Zufällig verteilen</button>
+      </div>
     </div>
-    {validSettings.status === 'invalid' && <>
-      <div className="p-1"/>
-      <div className="card border-none bg-red-600">{validSettings.message}</div>
-      <div className="p-2"/>
-    </>}
   </>
 }
 

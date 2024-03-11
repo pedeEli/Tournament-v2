@@ -23,11 +23,12 @@ export type Step = {
   actions?: Action[]
 }
 
-export const getBoundingBox = (elements: Element[]): DOMRect => {
-  let left = Number.MAX_VALUE
-  let top = Number.MAX_VALUE
+export const getBoundingBox = (elements: Element[]): DOMRect | null => {
+  let left = Number.MAX_SAFE_INTEGER
+  let top = Number.MAX_SAFE_INTEGER
   let right = 0
   let bottom = 0
+  let allHidden = true
 
   for (const element of elements) {
     const box = element.getBoundingClientRect()
@@ -35,12 +36,16 @@ export const getBoundingBox = (elements: Element[]): DOMRect => {
       continue
     }
 
+    allHidden = false
     left = Math.min(left, box.x)
     top = Math.min(top, box.y)
     right = Math.max(right, box.x + box.width)
     bottom = Math.max(bottom, box.y + box.height)
   }
 
+  if (allHidden) {
+    return null
+  }
   return new DOMRect(left, top, right - left, bottom - top)
 }
 
