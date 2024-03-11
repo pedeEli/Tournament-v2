@@ -169,7 +169,29 @@ const steps: Step[] = [
   },
   {
     route: '/groups',
-    text: `temp`
+    highlight: '#group-settings > :is(label, input[type="number"]):not([for="lucky-loser"])',
+    text: `Das sind allgemaine Einstellungen die auf jede Gruppe zutreffen.
+      Wir lassen sie so.`,
+    actions: [
+      {
+        type: 'forward',
+        fn: () => {
+          const winnerPerGroup = document.getElementById('winner-per-group') as HTMLInputElement
+          const pointsPerWin = document.getElementById('points-per-win') as HTMLInputElement
+          const pointsPerDraw = document.getElementById('points-per-draw') as HTMLInputElement
+          winnerPerGroup.value = '2'
+          pointsPerWin.value = '3'
+          pointsPerDraw.value = '1'
+          winnerPerGroup.dispatchEvent(new Event('input', {bubbles: true}))
+          pointsPerWin.dispatchEvent(new Event('input', {bubbles: true}))
+          pointsPerDraw.dispatchEvent(new Event('input', {bubbles: true}))
+        }
+      }
+    ]
+  },
+  {
+    route: '/groups',
+    text: `temp-2`
   }
 ]
 
@@ -197,17 +219,20 @@ const Tutorial = () => {
       setBox(null)
       return
     }
+    const {highlight} = step
 
     const elements: Element[] = []
     const observer = new ResizeObserver(() => {
       setBox(getBoundingBox(elements))
     })
 
-    for (const element of document.querySelectorAll(step.highlight)) {
-      elements.push(element)
-      observer.observe(element)
-    }
-    setBox(getBoundingBox(elements))
+    setTimeout(() => {
+      for (const element of document.querySelectorAll(highlight)) {
+        elements.push(element)
+        observer.observe(element)
+      }
+      setBox(getBoundingBox(elements))
+    })
 
     return () => observer.disconnect()
   }, [step, route])

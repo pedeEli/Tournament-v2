@@ -56,7 +56,7 @@ const GroupSettings = () => {
   const validSettings = groupsValidSettings(grps, groupsCount, sttngs)
 
   return <>
-    <div className="grid grid-cols-[auto_auto] auto-rows-[2.5rem] gap-x-4 gap-y-2 items-center">
+    <div id="group-settings" className="grid grid-cols-[auto_auto] auto-rows-[2.5rem] gap-x-4 gap-y-2 items-center">
       <GroupSettingsValue/>
       {luckyLoserPossible && <>
         <label htmlFor="lucky-loser" className="justify-self-end">Lucky Loser</label>
