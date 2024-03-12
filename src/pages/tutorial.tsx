@@ -1,7 +1,7 @@
 import type {ActionContext, Step} from '@/utils/tutorial'
 import {getBoundingBox, px, useApplyActions, listener, forward} from '@/utils/tutorial'
 import {useRouter, Route} from '@/components/Router'
-import {useEffect, useState, useMemo} from 'react'
+import {useEffect, useState, useMemo, useRef} from 'react'
 import {routes} from '@/init/App'
 import {contestants} from '@/state/tournament'
 import {createId} from '@/utils/str'
@@ -174,16 +174,55 @@ const Tutorial = () => {
   }
   const [box, setBox] = useState<DOMRect | null>(null)
   const {forwardActions} = useApplyActions(step, ctx)
+  const ref = useRef<HTMLDivElement>(null)
+  const allElements = useRef(new Map<HTMLElement, {tabIndex: number, pointerEvents: string}>())
+
+  const resetNode = (node: Node) => {
+    if (node instanceof HTMLElement) {
+      const elementsInfo = allElements.current.get(node)
+      if (elementsInfo != undefined) {
+        node.tabIndex = elementsInfo.tabIndex
+        node.style.pointerEvents = elementsInfo.pointerEvents
+      }
+    }
+  }
+  const resetAllNodes = () => {
+    for (const [element, {tabIndex, pointerEvents}] of allElements.current) {
+      element.tabIndex = tabIndex
+      element.style.pointerEvents = pointerEvents
+    }
+  }
 
   useEffect(() => {
     setRoute(routes.find(({route}) => route.test(step.route)))
   }, [step])
 
   useEffect(() => {
-    if (step.highlight == undefined) {
-      setBox(null)
+    if (ref.current == null) {
       return
     }
+
+    allElements.current.clear()
+    const walker = document.createTreeWalker(ref.current, NodeFilter.SHOW_ELEMENT)
+
+    while (walker.nextNode()) {
+      for (const node of walker.currentNode.childNodes) {
+        if (node instanceof HTMLButtonElement || node instanceof HTMLInputElement || node instanceof HTMLAnchorElement) {
+          allElements.current.set(node, {
+            tabIndex: node.tabIndex,
+            pointerEvents: node.style.pointerEvents
+          })
+          node.style.pointerEvents = 'none'
+          node.tabIndex = -1
+        }
+      }
+    }
+
+    if (step.highlight == undefined || ref.current == null) {
+      setBox(null)
+      return resetAllNodes
+    }
+
     const {highlight} = step
 
     const elements: Element[] = []
@@ -195,11 +234,24 @@ const Tutorial = () => {
       for (const element of document.querySelectorAll(highlight)) {
         elements.push(element)
         observer.observe(element)
+
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT)
+        resetNode(element)
+        while (walker.nextNode()) {
+          const currentNode = walker.currentNode
+          resetNode(currentNode)
+          for (const node of currentNode.childNodes) {
+            resetNode(node)
+          }
+        }
       }
       setBox(getBoundingBox(elements))
     })
 
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      resetAllNodes()
+    }
   }, [step, route])
 
   const forward = () => {
@@ -227,7 +279,9 @@ const Tutorial = () => {
 
 
   return <>
-    <Route {...route}/>
+    <div className="contents" ref={ref}>
+      <Route {...route}/>
+    </div>
     <Overlay {...{step, index, box, forward, back}}/>
   </>
 }

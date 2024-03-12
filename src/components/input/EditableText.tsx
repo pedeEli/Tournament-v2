@@ -19,7 +19,7 @@ const EditableText = ({
   className = ''
 }: EditableTextProps) => {
   const [editing, setEditing] = useState(_editing)
-  const spanRef = useDoubleClick(event => {
+  const spanRef = useDoubleClick<HTMLButtonElement>(event => {
     if (disabled)
       return
     event.stopPropagation()
@@ -58,7 +58,7 @@ const EditableText = ({
       defaultValue={text}
     />
 
-  return <span ref={spanRef} title={text} className={`${disabled ? '' : 'cursor-pointer'} ${className}`} onClick={() => {}}>{text}</span>
+  return <button ref={spanRef} title={text} className={`${disabled ? '' : 'cursor-pointer'} ${className}`}>{text}</button>
 }
 
 export default EditableText
