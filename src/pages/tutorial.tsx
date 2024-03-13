@@ -3,8 +3,9 @@ import {getBoundingBox, px, useApplyActions, listener, forward} from '@/utils/tu
 import {useRouter, Route} from '@/components/Router'
 import {useEffect, useState, useMemo, useRef} from 'react'
 import {routes} from '@/init/App'
-import {contestants} from '@/state/tournament'
+import {contestants, groups} from '@/state/tournament'
 import {createId} from '@/utils/str'
+import {addContestantToGroup, addGroup, handleDeleteGroup, handleDeleteMember} from '@/components/groups/GroupAssignment'
 
 const contestantsPool: App.Contestant[] = [
   {
@@ -148,7 +149,7 @@ const steps: Step[] = [
     route: '/groups',
     highlight: '#lucky-loser, [for="lucky-loser"]',
     text: `Wenn man drei Gruppen hat mit jeweils zwei Siegern, kann Lucky Loser aktiviert werden,
-      um statt sechs acht Sieger zu haben. Das funktioniert so in dem die Besten Verlierer aus den
+      um statt sechs acht Sieger zu haben. Das funktioniert so in dem die besten Verlierer aus den
       Gruppen ebenfalls in die K.o Phase kommen. Wir benötigen kein Lucky Loser,
       da wir zwei Gruppen mit je vier Teilnehmern erstellen.`,
     actions: [
@@ -158,6 +159,46 @@ const steps: Step[] = [
   {
     route: '/groups',
     highlight: '#group-assignment > *',
+    text: `Nun musst du noch die Gruppen erstellen. Das Plus neben Gruppen erstellt eine neue leere Gruppe.
+      Dann kannst du entweder mit Drag and Drop die Teams auf die Gruppen verteilen,
+      oder du drückst auf 'Zufällig verteilen'. Wir wollen mit zwei Gruppen spielen.`,
+    actions: [
+      {
+        type: 'forward',
+        fn: () => {
+          let grps = Object.values(groups)
+
+          while (grps.length < 2) {
+            addGroup()
+            grps = Object.values(groups)
+          }
+
+          while (grps.length > 2) {
+            handleDeleteGroup(grps[grps.length - 1].id)()
+            grps = Object.values(groups)
+          }
+
+          for (const group of grps) {
+            while (group.members.length > 4) {
+              handleDeleteMember(group.id)(4)()
+            }
+          }
+          
+          const assignedContestants = new Set(Object.values(grps).map(({members}) => members).flat())
+          const unusedContestants = Object.values(contestants).filter(({id}) => !assignedContestants.has(id))
+
+          for (const group of grps) {
+            while (group.members.length < 4) {
+              addContestantToGroup(group.id, unusedContestants[0].id)
+              unusedContestants.splice(0, 1)
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    route: '/groups',
     text: `test`
   }
 ]

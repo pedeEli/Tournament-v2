@@ -1,9 +1,9 @@
 import {useSnapshot} from 'valtio'
-import {groups, contestants, state, settings} from '@/state/tournament'
+import {groups, contestants, state, settings, matches} from '@/state/tournament'
 import {AddSVG} from '@/components/svg'
 import {EditableList} from '@/components/input'
 import {createId} from '@/utils/str'
-import {groupsValidSettings, reassignMatchesAfterRandomize} from '@/utils/groups'
+import {groupsValidSettings} from '@/utils/groups'
 import {useState} from 'react'
 import {
   deleteMatchesOfContestant,
@@ -11,7 +11,7 @@ import {
   deleteMatches
 } from '@/utils/groups'
 
-const addGroup = () => {
+export const addGroup = () => {
   const ids = new Set(Object.keys(groups))
   const id = createId(ids)
   groups[id] = {
@@ -24,13 +24,13 @@ const addGroup = () => {
   }
 }
 
-const handleDeleteMember = (id: App.Id) => (index: number) => () => {
+export const handleDeleteMember = (id: App.Id) => (index: number) => () => {
   const group = groups[id]
   const [member] = group.members.splice(index, 1)
   deleteMatchesOfContestant(member, group)
 }
 
-const handleDeleteGroup = (id: App.Id) => () => {
+export const handleDeleteGroup = (id: App.Id) => () => {
   deleteMatches(groups[id])
   delete groups[id]
   Object.values(groups).forEach((group, index) => {
@@ -38,7 +38,7 @@ const handleDeleteGroup = (id: App.Id) => () => {
   })
 }
 
-const assignRandomly = () => {
+export const assignRandomly = () => {
   const groupsIds = Object.keys(groups)
   if (!groupsIds.length) return
   groupsIds.forEach(id => groups[id].members.splice(0))
@@ -54,7 +54,25 @@ const assignRandomly = () => {
       unassigned.splice(randomIndex, 1)
       index = (index + 1) % groupsIds.length
   }
-  reassignMatchesAfterRandomize()
+
+  // reassign matches
+  const gs = Object.values(groups)
+  const oldMatches = gs.map(({matches}) => matches).flat(1)
+  gs.forEach(group => {
+    createAndAssignMatches(group)
+  })
+  const newMatches = gs.map(({matches}) => matches).flat(1)
+  newMatches.forEach(id => {
+    const index = oldMatches.findIndex(_id => _id === id)
+    if (index === -1) return
+    oldMatches.splice(index, 1)
+  })
+  oldMatches.forEach(id => delete matches[id])
+}
+
+export const addContestantToGroup = (group: App.Id, contestant: App.Id) => {
+  groups[group].members.push(contestant)
+  createAndAssignMatches(groups[group])
 }
 
 interface Drag {
@@ -96,9 +114,7 @@ const GroupAssignment = () => {
   const handleDrop = (id: App.Id) => () => {
     if (drag.hidden)
       return
-    const group = groups[id]
-    group.members.push(drag.id)
-    createAndAssignMatches(group)
+    addContestantToGroup(id, drag.id)
   }
 
   const groupsCount = Object.keys(grps).length

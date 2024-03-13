@@ -101,21 +101,6 @@ export const sortInfos = (a: App.GroupMemberInfo, b: App.GroupMemberInfo) => {
 }
 
 
-export const reassignMatchesAfterRandomize = () => {
-  const gs = Object.values(groups)
-  const oldMatches = gs.map(({matches}) => matches).flat(1)
-  gs.forEach(group => {
-    createAndAssignMatches(group)
-  })
-  const newMatches = gs.map(({matches}) => matches).flat(1)
-  newMatches.forEach(id => {
-    const index = oldMatches.findIndex(_id => _id === id)
-    if (index === -1) return
-    oldMatches.splice(index, 1)
-  })
-  oldMatches.forEach(id => delete matches[id])
-}
-
 type ValidSettings = {
   status: 'valid'
   message?: undefined
